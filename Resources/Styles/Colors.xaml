@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- ── Nueva Paleta: Strawberry Premium ────────────────────── -->
+    <!-- Niveles de Rosa Vibrante / Fucsia -->
+    <Color x:Key="PrimaryLighter">#FFE6EA</Color>
+    <Color x:Key="PrimaryLight">#FF80AB</Color>
+    <Color x:Key="Primary">#E91E63</Color>
+    <Color x:Key="PrimaryDark">#C2185B</Color>
+    <Color x:Key="PrimaryDarkText">#FFFFFF</Color>
+    
+    <!-- Acentos y Variaciones (Magenta Profundo) -->
+    <Color x:Key="Accent">#D81B60</Color>
+    <Color x:Key="AccentLight">#F48FB1</Color>
+    <Color x:Key="Bordeaux">#880E4F</Color>
+    <Color x:Key="DeepBerry">#4A0E2A</Color>
+
+    <!-- Semánticos -->
+    <Color x:Key="Mint">#26A69A</Color>
+    <Color x:Key="Amber">#FFA000</Color>
+    <Color x:Key="Secondary">#F06292</Color>
+
+    <!-- Fondos -->
+    <Color x:Key="PageBackground">#FAF8FF</Color>
+    <Color x:Key="PageBackgroundDark">#12101E</Color>
+    <Color x:Key="SurfaceLight">#FFFFFF</Color>
+    <Color x:Key="SurfaceDark">#1E1E2E</Color>
+
+    <!-- Texto -->
+    <Color x:Key="TextPrimary">#000000</Color>
+    <Color x:Key="TextPrimaryDark">#F0F0F5</Color>
+    <Color x:Key="TextSecondary">#4A4A4A</Color>
+
+    <!-- Neutros -->
+    <Color x:Key="White">White</Color>
+    <Color x:Key="Black">Black</Color>
+    <Color x:Key="Gray100">#E1E1E1</Color>
+    <Color x:Key="Gray200">#C8C8C8</Color>
+    <Color x:Key="Gray300">#ACACAC</Color>
+    <Color x:Key="Gray400">#919191</Color>
+    <Color x:Key="Gray500">#6E6E6E</Color>
+    <Color x:Key="Gray600">#404040</Color>
+    <Color x:Key="Gray900">#212121</Color>
+    <Color x:Key="Gray950">#141414</Color>
+
+    <!-- Brushes -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Accent}"/>
+
+</ResourceDictionary>

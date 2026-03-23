@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DulceRecetario.ViewModels"
+             x:Class="DulceRecetario.Views.RegisterPage"
+             x:DataType="vm:AuthViewModel"
+             Title="Registrarse">
+
+    <ContentPage.Background>
+        <LinearGradientBrush EndPoint="0,1">
+            <GradientStop Color="White" Offset="0.1" />
+            <GradientStop Color="{StaticResource PrimaryLighter}" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="32" Padding="32" VerticalOptions="Center">
+            
+            <Image Source="dotnet_bot.png" HeightRequest="100" HorizontalOptions="Center" />
+            
+            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                <Label Text="Crear Cuenta" 
+                       FontSize="36" 
+                       FontAttributes="Bold" 
+                       HorizontalOptions="Center" 
+                       TextColor="{StaticResource Bordeaux}"/>
+                <Label Text="¡Únete a nuestra comunidad dulce!" 
+                       FontSize="16" 
+                       HorizontalOptions="Center"
+                       TextColor="{StaticResource Primary}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="16">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Tu mejor correo" Style="{StaticResource LabelCaption}" />
+                    <Frame Padding="12,0" HasShadow="False" BorderColor="{StaticResource PrimaryLight}" BackgroundColor="White" CornerRadius="12">
+                        <Entry Placeholder="ejemplo@correo.com" 
+                               Text="{Binding Email}" 
+                               Keyboard="Email"
+                               TextColor="Black"
+                               HeightRequest="48" />
+                    </Frame>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Crea una contraseña" Style="{StaticResource LabelCaption}" />
+                    <Frame Padding="12,0" HasShadow="False" BorderColor="{StaticResource PrimaryLight}" BackgroundColor="White" CornerRadius="12">
+                        <Entry Placeholder="••••••••" 
+                               Text="{Binding Password}" 
+                               IsPassword="True"
+                               TextColor="Black"
+                               HeightRequest="48" />
+                    </Frame>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <Button Text="Registrarme ahora" 
+                    Style="{StaticResource PrimaryButton}"
+                    Command="{Binding RegisterCommand}" />
+
+            <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}" />
+
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
+                <Label Text="¿Ya tienes cuenta?" VerticalOptions="Center" TextColor="{StaticResource Gray600}" />
+                <Button Text="Inicia sesión" 
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Bordeaux}"
+                        FontAttributes="Bold"
+                        Command="{Binding BackToLoginCommand}"
+                        Padding="0" />
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

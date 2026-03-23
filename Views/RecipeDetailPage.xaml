@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="DulceRecetario.Views.RecipeDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:DulceRecetario.ViewModels"
+    x:DataType="vm:RecipeDetailViewModel"
+    Title="{Binding Title}"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackground}, Dark={StaticResource PageBackgroundDark}}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Editar" Command="{Binding EditCommand}" />
+        <ToolbarItem Text="🗑" Command="{Binding DeleteCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0" Padding="16">
+
+            <!-- Nombre y favorito -->
+            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
+                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                    <Label
+                        Text="{Binding Recipe.Name}"
+                        FontSize="28"
+                        FontAttributes="Bold"
+                        TextColor="{StaticResource Bordeaux}" />
+                    <Label
+                        Text="{Binding Recipe.Category}"
+                        FontSize="14"
+                        TextColor="{StaticResource Primary}"
+                        FontAttributes="Italic" />
+                </VerticalStackLayout>
+                
+                <Button
+                    Grid.Column="1"
+                    Text="{Binding Recipe.IsFavorite, Converter={StaticResource BoolToHeartConverter}}"
+                    Command="{Binding ToggleFavoriteCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Primary}"
+                    FontSize="28"
+                    Padding="0" />
+            </Grid>
+
+            <!-- Metadata pills -->
+            <FlexLayout Wrap="Wrap" JustifyContent="Start" AlignItems="Center" Margin="0,0,0,24">
+                <Frame Padding="12,6" CornerRadius="20" BackgroundColor="{StaticResource PrimaryLighter}" HasShadow="False" Margin="0,0,8,8" BorderColor="Transparent">
+                    <Label Text="{Binding Recipe.Difficulty}" FontSize="12" TextColor="{StaticResource Primary}" FontAttributes="Bold" />
+                </Frame>
+                <Frame Padding="12,6" CornerRadius="20" BackgroundColor="#FFF0F3" HasShadow="False" Margin="0,0,8,8" BorderColor="Transparent">
+                    <Label Text="{Binding Recipe.PrepTimeMinutes, StringFormat='⏱ {0} min'}" FontSize="12" TextColor="{StaticResource Bordeaux}" />
+                </Frame>
+                <Frame Padding="12,6" CornerRadius="20" BackgroundColor="#FFF8EC" HasShadow="False" Margin="0,0,8,8" BorderColor="Transparent">
+                    <Label Text="{Binding Recipe.Servings, StringFormat='🍽 {0} porciones'}" FontSize="12" TextColor="{StaticResource Amber}" />
+                </Frame>
+            </FlexLayout>
+
+            <!-- Descripción -->
+            <Frame Padding="16" CornerRadius="16" BackgroundColor="White" HasShadow="False" BorderColor="{StaticResource Gray100}">
+                <Label
+                    Text="{Binding Recipe.Description}"
+                    FontSize="16"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"
+                    LineHeight="1.6" />
+            </Frame>
+
+            <!-- Loading indicator -->
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="#9B8EC4" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

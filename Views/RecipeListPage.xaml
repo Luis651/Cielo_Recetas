@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="DulceRecetario.Views.RecipeListPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:DulceRecetario.ViewModels"
+    xmlns:dto="clr-namespace:DulceRecetario.DTOs"
+    Title="Cielo Recetas"
+    BackgroundColor="{StaticResource PageBackground}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            Text="+"
+            Command="{Binding AddRecipeCommand}"
+            Order="Primary" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <!-- Hero Banner Section -->
+            <Grid HeightRequest="280">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource Primary}" Offset="0.1" />
+                        <GradientStop Color="{StaticResource Accent}" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+
+                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="20" Padding="30">
+                    <Image 
+                        Source="dotnet_bot.png" 
+                        HeightRequest="100" 
+                        HorizontalOptions="Center" />
+                    <Label 
+                        Text="Descubre cada semana nuevas y deliciosas recetas"
+                        TextColor="White"
+                        FontSize="24"
+                        FontAttributes="Bold"
+                        HorizontalTextAlignment="Center"
+                        LineBreakMode="WordWrap"
+                        MaximumWidthRequest="300" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Search Bar Overlap -->
+            <Frame 
+                Margin="20,-30,20,0"
+                Padding="2"
+                CornerRadius="30"
+                HasShadow="True"
+                BorderColor="Transparent"
+                BackgroundColor="White"
+                HeightRequest="60">
+                <SearchBar
+                    Placeholder="¿Qué quieres cocinar hoy?"
+                    Text="{Binding SearchQuery}"
+                    BackgroundColor="Transparent"
+                    CancelButtonColor="{StaticResource Primary}" />
+            </Frame>
+
+            <!-- Sections Container -->
+            <VerticalStackLayout Padding="20" Spacing="24" Margin="0,10,0,0">
+                
+                <!-- Section 1: Tendencias (Horizontal) -->
+                <VerticalStackLayout Spacing="10">
+                    <Label 
+                        Text="Tendencias" 
+                        FontSize="22" 
+                        FontAttributes="Bold" 
+                        TextColor="{StaticResource Bordeaux}" />
+                    
+                    <CollectionView
+                        ItemsSource="{Binding Recipes}"
+                        HeightRequest="200"
+                        SelectionMode="None">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="16" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="dto:RecipeDto">
+                                <Frame
+                                    WidthRequest="160"
+                                    HeightRequest="180"
+                                    Padding="0"
+                                    CornerRadius="20"
+                                    IsClippedToBounds="True"
+                                    BorderColor="Transparent"
+                                    HasShadow="True">
+                                    <Grid>
+                                        <Image 
+                                            Source="dotnet_bot.png" 
+                                            Aspect="AspectFill" 
+                                            Opacity="0.8" />
+                                        <Grid.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                <GradientStop Color="Transparent" Offset="0.5" />
+                                                <GradientStop Color="#CC000000" Offset="1.0" />
+                                            </LinearGradientBrush>
+                                        </Grid.Background>
+                                        <Label 
+                                            Text="{Binding Name}"
+                                            TextColor="White"
+                                            VerticalOptions="End"
+                                            Margin="10"
+                                            FontAttributes="Bold"
+                                            FontSize="14" />
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <!-- Section 2: Todas las Recetas (Vertical) -->
+                <VerticalStackLayout Spacing="10">
+                    <Label 
+                        Text="Explorar Bizcochos" 
+                        FontSize="22" 
+                        FontAttributes="Bold" 
+                        TextColor="{StaticResource Bordeaux}" />
+                    
+                    <CollectionView
+                        ItemsSource="{Binding Recipes}"
+                        SelectionMode="None"
+                        EmptyView="No hay recetas aún. ¡Empieza a crear delicias! 🍓">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="16" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="dto:RecipeDto">
+                                <Frame
+                                    Padding="0"
+                                    CornerRadius="24"
+                                    HasShadow="True"
+                                    BorderColor="Transparent"
+                                    BackgroundColor="White">
+                                    <Frame.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RecipeListViewModel}}, Path=SelectRecipeCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Frame.GestureRecognizers>
+
+                                    <Grid ColumnDefinitions="120, *" HeightRequest="120">
+                                        <Image 
+                                            Grid.Column="0"
+                                            Source="dotnet_bot.png"
+                                            Aspect="AspectFill" />
+                                        
+                                        <VerticalStackLayout Grid.Column="1" Padding="12" Spacing="4" VerticalOptions="Fill">
+                                            <Label
+                                                Text="{Binding Name}"
+                                                FontSize="18"
+                                                FontAttributes="Bold"
+                                                TextColor="{StaticResource Bordeaux}"
+                                                MaxLines="1" />
+                                            <Label
+                                                Text="{Binding Category}"
+                                                FontSize="12"
+                                                TextColor="{StaticResource Primary}"
+                                                FontAttributes="Bold" />
+                                            
+                                            <HorizontalStackLayout Spacing="10" VerticalOptions="EndAndExpand">
+                                                <Label
+                                                    Text="{Binding PrepTimeMinutes, StringFormat='⏱ {0} min'}"
+                                                    FontSize="11"
+                                                    TextColor="{StaticResource TextSecondary}" />
+                                                <Label
+                                                    Text="{Binding Difficulty}"
+                                                    FontSize="11"
+                                                    TextColor="{StaticResource TextSecondary}" />
+                                            </HorizontalStackLayout>
+                                        </VerticalStackLayout>
+                                        
+                                        <ImageButton
+                                            Grid.Column="1"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:RecipeListViewModel}}, Path=ToggleFavoriteCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="Transparent"
+                                            HorizontalOptions="End"
+                                            VerticalOptions="Start"
+                                            Margin="8">
+                                            <ImageButton.Source>
+                                                <FontImageSource
+                                                    FontFamily="OpenSansSemibold"
+                                                    Glyph="❤"
+                                                    Color="{StaticResource Primary}"
+                                                    Size="20" />
+                                            </ImageButton.Source>
+                                        </ImageButton>
+                                    </Grid>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

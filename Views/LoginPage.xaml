@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:DulceRecetario.ViewModels"
+             x:Class="DulceRecetario.Views.LoginPage"
+             x:DataType="vm:AuthViewModel"
+             Title="Iniciar Sesión"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
+            <GradientStop Color="White" Offset="0.6" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="40" Padding="32" VerticalOptions="Center">
+            
+            <VerticalStackLayout Spacing="20" Margin="0,40,0,0">
+                <Image Source="dotnet_bot.png" HeightRequest="140" HorizontalOptions="Center" />
+                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                    <Label Text="Cielo Recetas" 
+                           FontSize="44" 
+                           FontAttributes="Bold" 
+                           HorizontalOptions="Center" 
+                           TextColor="White"/>
+                    <Label Text="Descubre cada semana nuevas y deliciosas recetas" 
+                           FontSize="16" 
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           TextColor="White"
+                           MaximumWidthRequest="250"/>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="20" Margin="0,20,0,0">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Correo electrónico" TextColor="{StaticResource Bordeaux}" FontAttributes="Bold" Margin="4,0" />
+                    <Frame Padding="16,0" HasShadow="False" BorderColor="{StaticResource PrimaryLighter}" BackgroundColor="{StaticResource PageBackground}" CornerRadius="25">
+                        <Entry Placeholder="ejemplo@correo.com" 
+                               Text="{Binding Email}" 
+                               Keyboard="Email"
+                               TextColor="Black"
+                               PlaceholderColor="{StaticResource Gray400}"
+                               HeightRequest="54" />
+                    </Frame>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Contraseña" TextColor="{StaticResource Bordeaux}" FontAttributes="Bold" Margin="4,0" />
+                    <Frame Padding="16,0" HasShadow="False" BorderColor="{StaticResource PrimaryLighter}" BackgroundColor="{StaticResource PageBackground}" CornerRadius="25">
+                        <Entry Placeholder="••••••••" 
+                               Text="{Binding Password}" 
+                               IsPassword="True"
+                               TextColor="Black"
+                               PlaceholderColor="{StaticResource Gray400}"
+                               HeightRequest="54" />
+                    </Frame>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="16">
+                <Button Text="Iniciar Sesión" 
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding LoginCommand}"
+                        HeightRequest="56"
+                        FontSize="18" />
+
+                <ActivityIndicator IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" Color="{StaticResource Primary}" />
+
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="4">
+                    <Label Text="¿Aún no tienes cuenta?" VerticalOptions="Center" TextColor="{StaticResource Gray600}" />
+                    <Button Text="Crea una aquí" 
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource Primary}"
+                            FontAttributes="Bold"
+                            Command="{Binding GoToRegisterCommand}"
+                            Padding="0" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

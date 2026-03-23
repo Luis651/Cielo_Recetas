@@ -1,0 +1,44 @@
+# .NET Core / MAUI gitignore
+[Bb]in/
+[Oo]bj/
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+
+# Visual Studio Code
+.history/
+.ionide/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Packages
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+# Android
+[Aa]ndroid/assets/
+[Aa]ndroid/obj/
+[Aa]ndroid/bin/
+
+# iOS
+[Ii][Oo][Ss]/obj/
+[Ii][Oo][Ss]/bin/
+
+# Artifacts
+C:\Users\Luis\.gemini\antigravity\brain\
+C:\Users\Luis\.gemini\antigravity\scratch\DulceRecetario\bin\
+C:\Users\Luis\.gemini\antigravity\scratch\DulceRecetario\obj\

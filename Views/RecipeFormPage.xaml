@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="DulceRecetario.Views.RecipeFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:DulceRecetario.ViewModels"
+    x:DataType="vm:RecipeFormViewModel"
+    Title="{Binding FormTitle}"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackground}, Dark={StaticResource PageBackgroundDark}}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Cancelar" Command="{Binding CancelCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="16">
+
+            <!-- Nombre -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Nombre de la receta *" Style="{StaticResource LabelCaption}" />
+                <Entry
+                    Placeholder="Ej: Tarta de maracuyá"
+                    Text="{Binding Name}"
+                    Style="{StaticResource EntryBase}" />
+            </VerticalStackLayout>
+
+            <!-- Descripción -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Descripción" Style="{StaticResource LabelCaption}" />
+                <Editor
+                    Placeholder="Describe brevemente tu receta..."
+                    Text="{Binding Description}"
+                    AutoSize="TextChanges"
+                    MinimumHeightRequest="80"
+                    Style="{StaticResource EditorBase}" />
+            </VerticalStackLayout>
+
+            <!-- Categoría -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Categoría" Style="{StaticResource LabelCaption}" />
+                <Picker
+                    Title="Selecciona una categoría"
+                    ItemsSource="{Binding Categories}"
+                    SelectedItem="{Binding Category}"
+                    Style="{StaticResource PickerBase}" />
+            </VerticalStackLayout>
+
+            <!-- Dificultad -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Dificultad" Style="{StaticResource LabelCaption}" />
+                <Picker
+                    Title="Nivel de dificultad"
+                    ItemsSource="{Binding DifficultyLevels}"
+                    SelectedItem="{Binding Difficulty}"
+                    Style="{StaticResource PickerBase}" />
+            </VerticalStackLayout>
+
+            <!-- Título -->
+            <Label
+                Text="{Binding Title}"
+                FontSize="24"
+                FontAttributes="Bold"
+                TextColor="{StaticResource Bordeaux}"
+                Margin="0,0,0,24" />
+
+            <!-- Nombre -->
+            <VerticalStackLayout Spacing="4" Margin="0,0,0,16">
+                <Label Text="Nombre de la receta" Style="{StaticResource LabelCaption}" />
+                <Frame Padding="12,0" HasShadow="False" BorderColor="{StaticResource PrimaryLight}" BackgroundColor="White" CornerRadius="12">
+                    <Entry Placeholder="Ej: Tarta de Fresa" Text="{Binding Name}" TextColor="Black" HeightRequest="48" />
+                </Frame>
+            </VerticalStackLayout>
+
+            <!-- Descripción -->
+            <VerticalStackLayout Spacing="4" Margin="0,0,0,16">
+                <Label Text="Descripción" Style="{StaticResource LabelCaption}" />
+                <Frame Padding="12" HasShadow="False" BorderColor="{StaticResource PrimaryLight}" BackgroundColor="White" CornerRadius="12" HeightRequest="120">
+                    <Editor Placeholder="¿Qué hace especial a esta receta?" Text="{Binding Description}" TextColor="Black" AutoSize="Disabled" />
+                </Frame>
+            </VerticalStackLayout>
+
+            <!-- Categoría y Dificultad -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,0,0,16">
+                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                    <Label Text="Categoría" Style="{StaticResource LabelCaption}" />
+                    <Frame Padding="12,0" HasShadow="False" BorderColor="{StaticResource PrimaryLight}" BackgroundColor="White" CornerRadius="12">
+                        <Picker Title="Seleccionar" ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}" TextColor="Black" HeightRequest="48" />
+                    </Frame>
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                    <Label Text="Dificultad" Style="{StaticResource LabelCaption}" />
+                    <Frame Padding="12,0" HasShadow="False" BorderColor="{StaticResource PrimaryLight}" BackgroundColor="White" CornerRadius="12">
+                        <Picker Title="Seleccionar" ItemsSource="{Binding DifficultyLevels}" SelectedItem="{Binding Difficulty}" TextColor="Black" HeightRequest="48" />
+                    </Frame>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Tiempo y Porciones -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,0,0,24">
+                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                    <Label Text="Tiempo (min)" Style="{StaticResource LabelCaption}" />
+                    <Frame Padding="12,0" HasShadow="False" BorderColor="{StaticResource PrimaryLight}" BackgroundColor="White" CornerRadius="12">
+                        <Entry Placeholder="0" Text="{Binding PrepTimeMinutes}" Keyboard="Numeric" TextColor="Black" HeightRequest="48" />
+                    </Frame>
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                    <Label Text="Porciones" Style="{StaticResource LabelCaption}" />
+                    <Frame Padding="12,0" HasShadow="False" BorderColor="{StaticResource PrimaryLight}" BackgroundColor="White" CornerRadius="12">
+                        <Entry Placeholder="0" Text="{Binding Servings}" Keyboard="Numeric" TextColor="Black" HeightRequest="48" />
+                    </Frame>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Botón Guardar -->
+            <Button
+                Text="Guardar Receta"
+                Style="{StaticResource PrimaryButton}"
+                Command="{Binding SaveCommand}" />
+
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="#9B8EC4" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
