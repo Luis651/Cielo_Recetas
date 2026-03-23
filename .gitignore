@@ -1,4 +1,5 @@
 # .NET Core / MAUI gitignore
+*.txt
 [Bb]in/
 [Oo]bj/
 .vs/
