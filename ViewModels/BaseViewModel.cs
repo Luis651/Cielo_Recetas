@@ -32,10 +32,15 @@ public abstract class BaseViewModel : INotifyPropertyChanged
         get => _isBusy;
         set
         {
-            SetProperty(ref _isBusy, value);
-            OnPropertyChanged(nameof(IsNotBusy));
+            if (SetProperty(ref _isBusy, value))
+            {
+                OnPropertyChanged(nameof(IsNotBusy));
+                OnIsBusyChanged();
+            }
         }
     }
+
+    protected virtual void OnIsBusyChanged() { }
 
     public bool IsNotBusy => !IsBusy;
 
@@ -61,8 +66,10 @@ public abstract class BaseViewModel : INotifyPropertyChanged
         get => _errorMessage;
         set
         {
-            SetProperty(ref _errorMessage, value);
-            OnPropertyChanged(nameof(HasError));
+            if (SetProperty(ref _errorMessage, value))
+            {
+                OnPropertyChanged(nameof(HasError));
+            }
         }
     }
 
@@ -70,7 +77,7 @@ public abstract class BaseViewModel : INotifyPropertyChanged
 
     // ── Helper para ejecutar tareas async con manejo de error ─────────────
 
-    protected async Task ExecuteAsync(Func<Task> action, string? errorMessage = null)
+    protected virtual async Task ExecuteAsync(Func<Task> action, string? errorMessage = null)
     {
         if (IsBusy) return;
 
@@ -83,6 +90,8 @@ public abstract class BaseViewModel : INotifyPropertyChanged
         catch (Exception ex)
         {
             ErrorMessage = errorMessage ?? ex.Message;
+            // Feedback visual profesional automático
+            await Shell.Current.DisplayAlert("Error", ErrorMessage, "Aceptar");
         }
         finally
         {

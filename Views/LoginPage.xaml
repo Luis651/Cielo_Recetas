@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:DulceRecetario.ViewModels"
@@ -17,8 +17,22 @@
     <ScrollView>
         <VerticalStackLayout Spacing="40" Padding="32" VerticalOptions="Center">
             
-            <VerticalStackLayout Spacing="20" Margin="0,40,0,0">
-                <Image Source="dotnet_bot.png" HeightRequest="140" HorizontalOptions="Center" />
+            <VerticalStackLayout Spacing="20" >
+                <Frame 
+                    HeightRequest="160" 
+                    WidthRequest="160" 
+                    CornerRadius="40" 
+                    Padding="0" 
+                    HorizontalOptions="Center"
+                    IsClippedToBounds="True"
+                    HasShadow="True"
+                    BorderColor="White"
+                    BackgroundColor="White">
+                    <Image Source="logo_cielo.jpg" 
+                           Aspect="AspectFill"
+                           />
+                </Frame>
+                
                 <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
                     <Label Text="Cielo Recetas" 
                            FontSize="44" 
@@ -30,6 +44,7 @@
                            HorizontalOptions="Center"
                            HorizontalTextAlignment="Center"
                            TextColor="White"
+                           Opacity="0.9"
                            MaximumWidthRequest="250"/>
                 </VerticalStackLayout>
             </VerticalStackLayout>

@@ -47,22 +47,29 @@ public class RecipeListViewModel : BaseViewModel
         ToggleFavoriteCommand = new Command<RecipeDto>(async r => await ToggleFavoriteAsync(r));
     }
 
+    private bool _isLoading;
+
     public async Task LoadRecipesAsync()
     {
+        if (_isLoading) return;
+        _isLoading = true;
+
         try
         {
             IsRefreshing = true;
             var list = await _recipeService.GetAllRecipesAsync();
             Recipes.Clear();
-            foreach (var r in list) Recipes.Add(r);
+            foreach (var r in list)
+                Recipes.Add(r);
         }
         catch (Exception ex)
         {
-            ErrorMessage = "Error al cargar recetas: " + ex.Message;
+            await Shell.Current.DisplayAlert("Error", "No se pudieron cargar las recetas: " + ex.Message, "Aceptar");
         }
         finally
         {
             IsRefreshing = false;
+            _isLoading = false;
         }
     }
 
@@ -74,12 +81,17 @@ public class RecipeListViewModel : BaseViewModel
             return;
         }
 
-        await ExecuteAsync(async () =>
+        try
         {
             var list = await _recipeService.SearchRecipesAsync(SearchQuery);
             Recipes.Clear();
-            foreach (var r in list) Recipes.Add(r);
-        });
+            foreach (var r in list)
+                Recipes.Add(r);
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", "Error en búsqueda: " + ex.Message, "Aceptar");
+        }
     }
 
     private async Task ToggleFavoriteAsync(RecipeDto recipe)

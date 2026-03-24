@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Diagnostics;
 using DulceRecetario.DTOs;
 using DulceRecetario.Models;
 using Supabase;
@@ -10,6 +12,7 @@ namespace DulceRecetario.Services;
 public class RecipeService
 {
     private readonly SupabaseService _supabaseService;
+    private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     public RecipeService(SupabaseService supabaseService)
     {
@@ -20,12 +23,32 @@ public class RecipeService
 
     public async Task<List<RecipeDto>> GetAllRecipesAsync()
     {
-        var client = await _supabaseService.GetClientAsync();
-        var response = await client.From<Recipe>()
-            .Order("created_at", Postgrest.Constants.Ordering.Descending)
-            .Get();
+        try 
+        {
+            var client = await _supabaseService.GetClientAsync();
+            var response = await client.From<Recipe>()
+                .Order("created_at", Postgrest.Constants.Ordering.Descending)
+                .Get();
 
-        return response.Models.Select(MapToDto).ToList();
+            var dtos = new List<RecipeDto>();
+            foreach (var model in response.Models)
+            {
+                try 
+                {
+                    dtos.Add(MapToDto(model));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error mapeando receta {model.Id}: {ex.Message}");
+                }
+            }
+            return dtos;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error en GetAllRecipesAsync: {ex.Message}");
+            return new List<RecipeDto>();
+        }
     }
 
     public async Task<List<RecipeDto>> GetFavoritesAsync()
@@ -106,19 +129,49 @@ public class RecipeService
 
     // ── MAPPING ───────────────────────────────────────────────────────────
 
-    private static RecipeDto MapToDto(Recipe model) => new()
+    /// <summary>
+    /// Intenta parsear un campo JSON de Supabase que puede venir como un JArray nativo o como un string ("[{...}]").
+    /// </summary>
+    private static List<T> ParseMixedJsonbArray<T>(object? rawValue)
     {
-        Id = model.Id,
-        Name = model.Name,
-        Description = model.Description,
-        Category = model.Category,
-        Difficulty = model.Difficulty,
-        PrepTimeMinutes = model.PrepTimeMinutes,
-        Servings = model.Servings,
-        ImageUrl = model.ImageUrl,
-        IsFavorite = model.IsFavorite,
-        CreatedAt = model.CreatedAt
-    };
+        if (rawValue == null) return new List<T>();
+
+        try
+        {
+            var jsonString = rawValue.ToString();
+            if (string.IsNullOrWhiteSpace(jsonString)) return new List<T>();
+
+            // Si vino como string escapado tipo "\[{...}\]", ToString() nos dará la cadena limpia
+            // Si vino como JArray nativo, ToString() suele dar el JSON real "[{...}]"
+            return JsonSerializer.Deserialize<List<T>>(jsonString, _jsonOptions) ?? new List<T>();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error parseando JSON: {ex.Message}");
+            return new List<T>();
+        }
+    }
+
+    private static RecipeDto MapToDto(Recipe model)
+    {
+        return new RecipeDto
+        {
+            Id = model.Id,
+            Name = model.Name ?? "Sin nombre",
+            Description = model.Description ?? "",
+            Category = model.Category ?? "Otros",
+            Difficulty = model.Difficulty ?? "Fácil",
+            PrepTimeMinutes = model.PrepTimeMinutes,
+            Servings = model.Servings ?? 1,
+            BaseMoldSize = model.BaseMoldSize ?? 20.0,
+            ImageUrl = model.ImageUrl,
+            IsFavorite = model.IsFavorite,
+            CreatedAt = model.CreatedAt,
+            // Parseamos robustamente desde object? (puede ser string o JArray)
+            Ingredients = ParseMixedJsonbArray<IngredientDto>(model.IngredientsRaw),
+            Steps = ParseMixedJsonbArray<RecipeStepDto>(model.StepsRaw)
+        };
+    }
 
     private static Recipe MapToModel(RecipeDto dto) => new()
     {
@@ -129,7 +182,13 @@ public class RecipeService
         Difficulty = dto.Difficulty,
         PrepTimeMinutes = dto.PrepTimeMinutes,
         Servings = dto.Servings,
+        BaseMoldSize = dto.BaseMoldSize,
         ImageUrl = dto.ImageUrl,
-        IsFavorite = dto.IsFavorite
+        IsFavorite = dto.IsFavorite,
+        // Al guardar enviamos diccionarios o serializamos a C# Types. 
+        // Postgrest prefiere arrays u objetos definidos para columnas JSONB, 
+        // pero podemos mandar una cadena serializada y dejar que Postgrest la guarde como string.
+        IngredientsRaw = JsonSerializer.Serialize(dto.Ingredients, _jsonOptions),
+        StepsRaw = JsonSerializer.Serialize(dto.Steps, _jsonOptions)
     };
 }

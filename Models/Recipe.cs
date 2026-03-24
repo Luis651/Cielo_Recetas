@@ -28,7 +28,18 @@ public class Recipe : BaseModel
     public int PrepTimeMinutes { get; set; }
 
     [Column("servings")]
-    public int Servings { get; set; } = 1;
+    public int? Servings { get; set; }
+
+    [Column("base_mold_size")]
+    public double? BaseMoldSize { get; set; }
+
+    // Usamos object? para que Newtonsoft lo parsee sin importar
+    // si en la base de datos es un string ("[{...}]") o un array nativo ([{...}])
+    [Column("ingredients_json")]
+    public object? IngredientsRaw { get; set; }
+
+    [Column("steps_json")]
+    public object? StepsRaw { get; set; }
 
     [Column("image_url")]
     public string? ImageUrl { get; set; }

@@ -4,71 +4,218 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:DulceRecetario.ViewModels"
+    xmlns:dto="clr-namespace:DulceRecetario.DTOs"
     x:DataType="vm:RecipeDetailViewModel"
-    Title="{Binding Title}"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBackground}, Dark={StaticResource PageBackgroundDark}}">
+    Title="Detalle de Receta"
+    BackgroundColor="White">
 
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Editar" Command="{Binding EditCommand}" />
-        <ToolbarItem Text="🗑" Command="{Binding DeleteCommand}" />
+        <ToolbarItem Text="Eliminar" Command="{Binding DeleteCommand}" />
     </ContentPage.ToolbarItems>
 
     <ScrollView>
-        <VerticalStackLayout Spacing="0" Padding="16">
-
-            <!-- Nombre y favorito -->
-            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,16">
-                <VerticalStackLayout Grid.Column="0" Spacing="4">
-                    <Label
-                        Text="{Binding Recipe.Name}"
-                        FontSize="28"
-                        FontAttributes="Bold"
-                        TextColor="{StaticResource Bordeaux}" />
-                    <Label
-                        Text="{Binding Recipe.Category}"
-                        FontSize="14"
-                        TextColor="{StaticResource Primary}"
-                        FontAttributes="Italic" />
-                </VerticalStackLayout>
-                
-                <Button
-                    Grid.Column="1"
-                    Text="{Binding Recipe.IsFavorite, Converter={StaticResource BoolToHeartConverter}}"
-                    Command="{Binding ToggleFavoriteCommand}"
-                    BackgroundColor="Transparent"
-                    TextColor="{StaticResource Primary}"
-                    FontSize="28"
-                    Padding="0" />
+        <VerticalStackLayout Spacing="0">
+            <!-- Header Image/Banner Area -->
+            <Grid HeightRequest="220">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
+                        <GradientStop Color="{StaticResource Accent}" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+                <Image 
+                    Source="dotnet_bot.png" 
+                    Aspect="AspectFit" 
+                    Margin="40"
+                    VerticalOptions="Center" 
+                    HorizontalOptions="Center" />
             </Grid>
 
-            <!-- Metadata pills -->
-            <FlexLayout Wrap="Wrap" JustifyContent="Start" AlignItems="Center" Margin="0,0,0,24">
-                <Frame Padding="12,6" CornerRadius="20" BackgroundColor="{StaticResource PrimaryLighter}" HasShadow="False" Margin="0,0,8,8" BorderColor="Transparent">
-                    <Label Text="{Binding Recipe.Difficulty}" FontSize="12" TextColor="{StaticResource Primary}" FontAttributes="Bold" />
-                </Frame>
-                <Frame Padding="12,6" CornerRadius="20" BackgroundColor="#FFF0F3" HasShadow="False" Margin="0,0,8,8" BorderColor="Transparent">
-                    <Label Text="{Binding Recipe.PrepTimeMinutes, StringFormat='⏱ {0} min'}" FontSize="12" TextColor="{StaticResource Bordeaux}" />
-                </Frame>
-                <Frame Padding="12,6" CornerRadius="20" BackgroundColor="#FFF8EC" HasShadow="False" Margin="0,0,8,8" BorderColor="Transparent">
-                    <Label Text="{Binding Recipe.Servings, StringFormat='🍽 {0} porciones'}" FontSize="12" TextColor="{StaticResource Amber}" />
-                </Frame>
-            </FlexLayout>
+            <VerticalStackLayout Spacing="24" Padding="24" Margin="0,-30,0,0">
+                <!-- Recipe Info Card -->
+                <Frame 
+                    Padding="20" 
+                    CornerRadius="24" 
+                    BackgroundColor="White" 
+                    HasShadow="True" 
+                    BorderColor="Transparent">
+                    <VerticalStackLayout Spacing="16">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label 
+                                    Text="{Binding Recipe.Name}" 
+                                    FontSize="28" 
+                                    FontAttributes="Bold" 
+                                    TextColor="{StaticResource Bordeaux}" />
+                                <Label 
+                                    Text="{Binding Recipe.Category}" 
+                                    FontSize="14" 
+                                    TextColor="{StaticResource Primary}" 
+                                    FontAttributes="Bold" />
+                            </VerticalStackLayout>
 
-            <!-- Descripción -->
-            <Frame Padding="16" CornerRadius="16" BackgroundColor="White" HasShadow="False" BorderColor="{StaticResource Gray100}">
-                <Label
-                    Text="{Binding Recipe.Description}"
-                    FontSize="16"
-                    TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}"
-                    LineHeight="1.6" />
-            </Frame>
+                            <ImageButton
+                                Grid.Column="1"
+                                Command="{Binding ToggleFavoriteCommand}"
+                                BackgroundColor="Transparent"
+                                VerticalOptions="Start">
+                                <ImageButton.Source>
+                                    <FontImageSource 
+                                        FontFamily="OpenSansSemibold"
+                                        Glyph="❤"
+                                        Color="{StaticResource Primary}" 
+                                        Size="32" />
+                                </ImageButton.Source>
+                            </ImageButton>
+                        </Grid>
+
+                        <!-- Stats Row -->
+                        <FlexLayout Wrap="Wrap" JustifyContent="Start" AlignItems="Center">
+                            <Frame Padding="12,6" CornerRadius="12" BackgroundColor="{StaticResource PrimaryLighter}" HasShadow="False" Margin="0,0,8,8" BorderColor="Transparent">
+                                <Label Text="{Binding Recipe.Difficulty}" FontSize="12" TextColor="{StaticResource Primary}" FontAttributes="Bold" />
+                            </Frame>
+                            <Frame Padding="12,6" CornerRadius="12" BackgroundColor="{StaticResource PrimaryLighter}" HasShadow="False" Margin="0,0,8,8" BorderColor="Transparent">
+                                <Label Text="{Binding Recipe.PrepTimeMinutes, StringFormat='⏱ {0} min'}" FontSize="12" TextColor="{StaticResource Bordeaux}" FontAttributes="Bold" />
+                            </Frame>
+                            <Frame Padding="12,6" CornerRadius="12" BackgroundColor="{StaticResource PrimaryLighter}" HasShadow="False" Margin="0,0,8,8" BorderColor="Transparent">
+                                <Label Text="{Binding Recipe.Servings, StringFormat='🍽 {0} porciones'}" FontSize="12" TextColor="{StaticResource Accent}" FontAttributes="Bold" />
+                            </Frame>
+                        </FlexLayout>
+
+                        <BoxView HeightRequest="1" BackgroundColor="{StaticResource PrimaryLighter}" />
+
+                        <!-- Description -->
+                        <Label 
+                            Text="{Binding Recipe.Description}" 
+                            FontSize="16" 
+                            TextColor="{StaticResource Gray600}" 
+                            LineHeight="1.5" />
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Escalador de Moldes (HU-001) -->
+                <Frame 
+                    Padding="20" 
+                    CornerRadius="24" 
+                    BackgroundColor="{StaticResource PageBackground}" 
+                    HasShadow="False" 
+                    BorderColor="{StaticResource PrimaryLighter}">
+                    <VerticalStackLayout Spacing="20">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Calculadora de Escalado 🍓" FontSize="20" FontAttributes="Bold" TextColor="{StaticResource Bordeaux}" />
+                            <Label Text="Ajusta las cantidades según tu molde" FontSize="12" TextColor="{StaticResource Gray600}" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*, Auto" ColumnSpacing="20">
+                            <!-- Base Mold Info -->
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label Text="Molde Original" FontSize="11" TextColor="{StaticResource Primary}" FontAttributes="Bold" />
+                                <Label Text="{Binding Recipe.BaseMoldSize, StringFormat='{0} cm'}" FontSize="18" TextColor="{StaticResource Bordeaux}" />
+                            </VerticalStackLayout>
+
+                            <!-- Target Mold Input -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" WidthRequest="120">
+                                <Label Text="Nuevo Molde (cm)" FontSize="11" TextColor="{StaticResource Primary}" FontAttributes="Bold" />
+                                <Frame Padding="12,0" HeightRequest="44" CornerRadius="12" BackgroundColor="White" HasShadow="False" BorderColor="{StaticResource PrimaryLight}">
+                                    <Entry Text="{Binding TargetMoldSize}" Keyboard="Numeric" HorizontalTextAlignment="Center" FontSize="16" TextColor="Black" />
+                                </Frame>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Factor indicator -->
+                        <Frame Padding="12,6" CornerRadius="8" BackgroundColor="{StaticResource Primary}" HasShadow="False">
+                            <Label Text="{Binding ScalingFactor, StringFormat='Factor de ajuste: x{0:F2}'}" TextColor="White" HorizontalOptions="Center" FontAttributes="Bold" FontSize="12" />
+                        </Frame>
+
+                        <!-- Results Table -->
+                        <VerticalStackLayout Spacing="10">
+                            <!-- Table Header -->
+                            <Grid ColumnDefinitions="*, 80, 80" Padding="4">
+                                <Label Grid.Column="0" Text="Ingrediente" FontSize="11" TextColor="{StaticResource Gray500}" FontAttributes="Bold" />
+                                <Label Grid.Column="1" Text="Original" FontSize="11" TextColor="{StaticResource Gray500}" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                                <Label Grid.Column="2" Text="Escalado" FontSize="11" TextColor="{StaticResource Primary}" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                            </Grid>
+                            
+                            <BoxView HeightRequest="0.5" BackgroundColor="{StaticResource Gray200}" />
+
+                            <!-- Table Rows -->
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding ScaledIngredients}" Spacing="12">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ScaledIngredient">
+                                        <Grid ColumnDefinitions="*, 80, 80" Padding="4">
+                                            <Label Grid.Column="0" Text="{Binding Name}" FontSize="14" TextColor="Black" VerticalOptions="Center" />
+                                            <Label Grid.Column="1" Text="{Binding OriginalQuantity, StringFormat='{0:0.##}'}" FontSize="14" TextColor="{StaticResource Gray600}" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                            <HorizontalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
+                                                <Label Text="{Binding ScaledQuantity, StringFormat='{0:0.##}'}" FontSize="15" TextColor="{StaticResource Bordeaux}" FontAttributes="Bold" VerticalOptions="Center" />
+                                                <Label Text="{Binding Unit}" FontSize="10" TextColor="{StaticResource Primary}" VerticalOptions="End" Margin="0,0,0,2" />
+                                            </HorizontalStackLayout>
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Preparación section (HU-001) -->
+                <VerticalStackLayout Spacing="16" Margin="0,10,0,20">
+                    <Label Text="Preparación" FontSize="22" FontAttributes="Bold" TextColor="{StaticResource Bordeaux}" />
+                    
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Recipe.Steps}" Spacing="16">
+                        <BindableLayout.EmptyView>
+                            <Label Text="No se han agregado pasos para esta receta." IsVisible="{Binding IsNotBusy}" TextColor="{StaticResource Gray500}" FontAttributes="Italic" />
+                        </BindableLayout.EmptyView>
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="dto:RecipeStepDto">
+                                <Grid ColumnDefinitions="40, *" ColumnSpacing="12">
+                                    <Frame 
+                                        Grid.Column="0" 
+                                        HeightRequest="32" 
+                                        WidthRequest="32" 
+                                        CornerRadius="16" 
+                                        Padding="0" 
+                                        BackgroundColor="{StaticResource Primary}" 
+                                        HasShadow="False"
+                                        VerticalOptions="Start"
+                                        HorizontalOptions="Center">
+                                        <Label 
+                                            Text="{Binding Order}" 
+                                            TextColor="White" 
+                                            FontSize="14" 
+                                            FontAttributes="Bold" 
+                                            VerticalOptions="Center" 
+                                            HorizontalOptions="Center" />
+                                    </Frame>
+                                    <Label 
+                                        Grid.Column="1" 
+                                        Text="{Binding Description}" 
+                                        FontSize="16" 
+                                        TextColor="{StaticResource Gray600}" 
+                                        VerticalOptions="Center" 
+                                        LineHeight="1.4" />
+                                </Grid>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <Button 
+                    Text="Volver a Recetas" 
+                    Command="{Binding GoBackCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Gray600}"
+                    Margin="0,0,0,40" />
+
+            </VerticalStackLayout>
 
             <!-- Loading indicator -->
             <ActivityIndicator
                 IsRunning="{Binding IsBusy}"
                 IsVisible="{Binding IsBusy}"
-                Color="#9B8EC4" />
-
+                Color="{StaticResource Primary}"
+                VerticalOptions="Center" 
+                HorizontalOptions="Center" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
