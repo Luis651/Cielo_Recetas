@@ -1,0 +1,179 @@
+@page "/recipe/{Id:guid}"
+@inject RecipeService RecipeService
+@inject NavigationManager Navigation
+
+@if (recipe == null)
+{
+    <div class="text-center py-5">
+        <div class="strawberry-loader">🍓</div>
+        <p class="mt-3">Buscando el secreto dulce...</p>
+    </div>
+}
+else
+{
+    <div class="recipe-detail-container animate__animated animate__fadeIn">
+        <!-- Hero Section -->
+        <div class="detail-hero" style="background-image: url('@(string.IsNullOrEmpty(recipe.ImageUrl) ? "icon-512.png" : recipe.ImageUrl)')">
+            <div class="detail-overlay d-flex flex-column justify-content-between">
+                <button class="btn-circular-back" @onclick="GoBack">←</button>
+                <div class="hero-info text-white">
+                    <span class="recipe-category-pill">@recipe.Category</span>
+                    <h1 class="display-4 fw-bold mt-2">@recipe.Name</h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-overlap">
+            <div class="row">
+                <!-- Left: Info & Scaling -->
+                <div class="col-lg-8">
+                    <div class="stats-grid mb-5">
+                        <div class="stat-card">
+                            <span class="stat-icon">✨</span>
+                            <span class="stat-label">Dificultad</span>
+                            <span class="stat-value">@recipe.Difficulty</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon">⏱</span>
+                            <span class="stat-label">Tiempo</span>
+                            <span class="stat-value">@recipe.PrepTimeMinutes min</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon">🍽</span>
+                            <span class="stat-label">Porciones</span>
+                            <span class="stat-value">@recipe.Servings</span>
+                        </div>
+                    </div>
+
+                    <p class="description-text mb-5">@recipe.Description</p>
+
+                    <h3 class="section-title mb-4">Preparación</h3>
+                    <div class="steps-timeline">
+                        @foreach (var step in recipe.Steps.OrderBy(s => s.Order))
+                        {
+                            <div class="step-card mb-4">
+                                <div class="step-header">
+                                    <span class="step-num">Paso @step.Order</span>
+                                </div>
+                                <div class="step-body">
+                                    @step.Description
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Right: Ingredients & Tools -->
+                <div class="col-lg-4">
+                    <div class="sticky-sidebar">
+                        <div class="scaling-widget mb-4 glass-card p-4">
+                            <h5 class="fw-bold mb-3">Calculadora Pro 📏</h5>
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1">Diámetro actual: @recipe.BaseMoldSize cm</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Nuevo:</span>
+                                    <input type="number" class="form-control" @bind="targetMoldSize" @bind:event="oninput" @onkeyup="UpdateScaling" />
+                                    <span class="input-group-text">cm</span>
+                                </div>
+                            </div>
+                            <div class="scaling-factor-indicator">
+                                Ajuste: <strong>x@scalingFactor.ToString("0.##")</strong>
+                            </div>
+                        </div>
+
+                        <div class="ingredients-card p-4 rounded-4 shadow-sm border-0">
+                            <h4 class="fw-bold mb-4">Ingredientes</h4>
+                            <ul class="ing-list">
+                                @foreach (var ing in recipe.Ingredients)
+                                {
+                                    <li>
+                                        <span class="ing-dot"></span>
+                                        <div class="d-flex justify-content-between w-100">
+                                            <span class="ing-name">@ing.Name</span>
+                                            <span class="ing-amount">@((ing.Quantity * scalingFactor).ToString("0.##")) @ing.Unit</span>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+
+                        <div class="mt-5 d-flex justify-content-center gap-3">
+                            <button class="btn btn-danger-premium px-4" @onclick="DeleteRecipe">Eliminar 🗑</button>
+                            <button class="btn btn-premium px-5" @onclick="EditRecipe">Editar Receta ✍️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .btn-circular-back {
+        width: 45px; height: 45px; border-radius: 50%; border: none;
+        background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+        color: white; font-size: 1.2rem; transition: all 0.3s;
+    }
+    .btn-circular-back:hover { background: white; color: var(--primary); transform: translateX(-5px); }
+    .recipe-category-pill {
+        background: var(--primary); color: white; padding: 4px 14px; border-radius: 20px;
+        font-size: 0.8rem; font-weight: bold; text-transform: uppercase;
+    }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+    .stat-card {
+        background: white; border-radius: 20px; padding: 15px; text-align: center;
+        border: 1px solid var(--primary-lighter); box-shadow: var(--shadow-sm);
+    }
+    .stat-icon { font-size: 1.5rem; display: block; margin-bottom: 5px; }
+    .stat-label { font-size: 0.7rem; color: var(--text-muted); display: block; text-transform: uppercase; }
+    .stat-value { font-weight: 800; color: var(--bordeaux); font-size: 1rem; }
+    .description-text { font-size: 1.1rem; line-height: 1.7; color: var(--text-muted); }
+    .section-title { font-weight: 800; color: var(--bordeaux); }
+    .step-card { background: white; border-radius: 24px; padding: 25px; border-left: 5px solid var(--primary); box-shadow: var(--shadow-sm); }
+    .step-num { font-weight: 800; color: var(--primary); font-size: 0.8rem; text-transform: uppercase; }
+    .step-body { margin-top: 10px; font-size: 1.05rem; line-height: 1.6; }
+    .ing-list { list-style: none; padding: 0; }
+    .ing-list li { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8f8f8; }
+    .ing-dot { width: 8px; height: 8px; background: var(--primary-light); border-radius: 50%; margin-right: 15px; flex-shrink: 0; }
+    .ing-name { font-weight: 500; }
+    .ing-amount { font-weight: 800; color: var(--accent); }
+    .sticky-sidebar { position: sticky; top: 100px; }
+    .scaling-factor-indicator { background: var(--grad-primary); color: white; text-align: center; padding: 8px; border-radius: 12px; font-size: 0.9rem; }
+</style>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private RecipeDto? recipe;
+    private double targetMoldSize;
+    private double scalingFactor = 1.0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        recipe = await RecipeService.GetRecipeByIdAsync(Id);
+        if (recipe != null)
+        {
+            targetMoldSize = recipe.BaseMoldSize;
+        }
+    }
+
+    private void UpdateScaling()
+    {
+        if (recipe != null && recipe.BaseMoldSize > 0 && targetMoldSize > 0)
+        {
+            scalingFactor = Math.Pow(targetMoldSize, 2) / Math.Pow(recipe.BaseMoldSize, 2);
+        }
+        else
+        {
+            scalingFactor = 1.0;
+        }
+    }
+
+    private void GoBack() => Navigation.NavigateTo("/");
+    private void EditRecipe() => Navigation.NavigateTo($"/edit/{recipe?.Id}");
+    private async Task DeleteRecipe()
+    {
+        if (recipe == null) return;
+        await RecipeService.DeleteRecipeAsync(recipe.Id);
+        Navigation.NavigateTo("/");
+    }
+}

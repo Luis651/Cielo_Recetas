@@ -1,16 +1,14 @@
 using System.Text.Json.Serialization;
 
-namespace DulceRecetario.DTOs;
+namespace DulceRecetario.Shared.DTOs;
 
 public class IngredientDto
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Name { get; set; } = string.Empty;
     
-    // Numeric value for calculations
     public double Quantity { get; set; }
 
-    // Text value for UI (supports "1/2", "0.5", etc.)
     [JsonIgnore]
     public string QuantityText
     {
@@ -21,13 +19,11 @@ public class IngredientDto
     public string? Unit { get; set; }
     public int OrderIndex { get; set; }
 
-    // Display helper for original values
     public string FullDescription =>
         string.IsNullOrWhiteSpace(Unit) ? $"{GetDisplayQuantity()} {Name}" : $"{GetDisplayQuantity()} {Unit} de {Name}";
 
     public string GetDisplayQuantity() => Quantity.ToString("0.##");
 
-    // Helper for scaled values
     public string GetScaledDescription(double factor)
     {
         double scaledQty = Quantity * factor;
@@ -38,11 +34,9 @@ public class IngredientDto
     {
         if (string.IsNullOrWhiteSpace(text)) return 0;
 
-        // Try simple number
         if (double.TryParse(text.Replace(',', '.'), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double result))
             return result;
 
-        // Try fraction like "1/2"
         if (text.Contains('/'))
         {
             var parts = text.Split('/');

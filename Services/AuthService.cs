@@ -1,5 +1,6 @@
 using Supabase.Gotrue;
 using System.Threading.Tasks;
+using DulceRecetario.Shared.Services;
 
 namespace DulceRecetario.Services;
 

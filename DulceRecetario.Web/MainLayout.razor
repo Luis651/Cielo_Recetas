@@ -1,0 +1,30 @@
+@inherits LayoutComponentBase
+
+<div class="page-container">
+    <div class="top-bar py-3 px-4 d-flex justify-content-between align-items-center">
+        <h1 class="brand-title m-0" style="cursor: pointer;" @onclick='() => Navigation.NavigateTo("/")'>Cielo Recetas 🍓</h1>
+    </div>
+
+    <main class="main-content">
+        @Body
+    </main>
+
+    <footer class="text-center py-5 opacity-50 small">
+        &copy; 2026 Cielo Recetas • Creado con ❤️ para reposteros
+    </footer>
+</div>
+
+@inject NavigationManager Navigation
+
+<style>
+    .page-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    .main-content {
+        padding: 2rem 1rem;
+    }
+    @@media (min-width: 768px) {
+        .main-content { padding: 3rem 2rem; }
+    }
+</style>

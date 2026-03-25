@@ -1,7 +1,7 @@
 using Postgrest.Attributes;
 using Postgrest.Models;
 
-namespace DulceRecetario.Models;
+namespace DulceRecetario.Shared.Models;
 
 [Table("recipes")]
 public class Recipe : BaseModel
@@ -33,8 +33,6 @@ public class Recipe : BaseModel
     [Column("base_mold_size")]
     public double? BaseMoldSize { get; set; }
 
-    // Usamos object? para que Newtonsoft lo parsee sin importar
-    // si en la base de datos es un string ("[{...}]") o un array nativo ([{...}])
     [Column("ingredients_json")]
     public object? IngredientsRaw { get; set; }
 

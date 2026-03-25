@@ -1,7 +1,7 @@
 using Postgrest.Attributes;
 using Postgrest.Models;
 
-namespace DulceRecetario.Models;
+namespace DulceRecetario.Shared.Models;
 
 [Table("ingredients")]
 public class Ingredient : BaseModel

@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DulceRecetario", "DulceRecetario.csproj", "{B8E5F7A4-9D9B-4D9A-B8E5-F7A49D9B4D9A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DulceRecetario.Shared", "DulceRecetario.Shared\DulceRecetario.Shared.csproj", "{F1E5F7A4-9D9B-4D9A-B8E5-F7A49D9B4D9A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,10 @@ Global
 		{B8E5F7A4-9D9B-4D9A-B8E5-F7A49D9B4D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8E5F7A4-9D9B-4D9A-B8E5-F7A49D9B4D9A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B8E5F7A4-9D9B-4D9A-B8E5-F7A49D9B4D9A}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{F1E5F7A4-9D9B-4D9A-B8E5-F7A49D9B4D9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1E5F7A4-9D9B-4D9A-B8E5-F7A49D9B4D9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1E5F7A4-9D9B-4D9A-B8E5-F7A49D9B4D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1E5F7A4-9D9B-4D9A-B8E5-F7A49D9B4D9A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

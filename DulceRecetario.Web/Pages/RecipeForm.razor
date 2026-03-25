@@ -1,0 +1,258 @@
+@page "/add"
+@page "/edit/{Id:guid}"
+@inject RecipeService RecipeService
+@inject NavigationManager Navigation
+
+<div class="form-container py-4 max-w-800 animate__animated animate__fadeIn">
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-5 px-3">
+        <button class="btn-circular-back me-3" @onclick="GoBack">←</button>
+        <div>
+            <span class="text-primary fw-bold small text-uppercase letter-spacing-1">Diseño de Repostería</span>
+            <h2 class="fw-800 bordeaux-text m-0">@(IsEditMode ? "Perfeccionar Receta" : "Nueva Creación")</h2>
+        </div>
+    </div>
+
+    <!-- Photo Selection Section -->
+    <div class="section-gap px-3">
+        <div class="premium-dropzone @(string.IsNullOrEmpty(previewUrl) ? "" : "has-image") shadow-lg cursor-pointer" 
+             style="background-image: url('@previewUrl')"
+             onclick="document.getElementById('fileInput').click()">
+            <div class="dropzone-overlay">
+                @if (string.IsNullOrEmpty(previewUrl))
+                {
+                    <div class="bounce-icon mb-3">🍓</div>
+                    <h4 class="fw-800 text-white mb-2">Portada de tu Receta</h4>
+                    <p class="small text-white opacity-75 mb-3">Toca para añadir una foto increíble</p>
+                }
+                <div class="btn-upload-trigger shadow">
+                    @(string.IsNullOrEmpty(previewUrl) ? "📸 Seleccionar Foto" : "✨ Cambiar Imagen")
+                </div>
+                <InputFile id="fileInput" OnChange="HandleFileSelected" class="hidden-input" />
+            </div>
+        </div>
+    </div>
+
+    <!-- Basic Info Card -->
+    <div class="px-3 section-gap">
+        <div class="premium-card">
+            <h5 class="fw-800 bordeaux-text mb-5 d-flex align-items-center">
+                <span class="me-3 fs-3">🎨</span> Información General
+            </h5>
+            <div class="row g-0">
+                <div class="col-12 form-group-premium">
+                    <label class="form-label-premium">Nombre de la Creación</label>
+                    <input type="text" class="premium-input w-100 py-3" @bind="recipe.Name" placeholder="Ej: Red Velvet de Fresa" />
+                </div>
+                
+                <div class="col-md-6 form-group-premium pe-md-3">
+                    <label class="form-label-premium">Categoría Dulce</label>
+                    <select class="premium-input premium-select w-100 py-3" @bind="recipe.Category">
+                        @foreach (var cat in Categories) { <option value="@cat">@cat</option> }
+                    </select>
+                </div>
+                
+                <div class="col-md-6 form-group-premium ps-md-3">
+                    <label class="form-label-premium">Maestría</label>
+                    <select class="premium-input premium-select w-100 py-3" @bind="recipe.Difficulty">
+                        <option value="Fácil">Fácil</option>
+                        <option value="Intermedia">Intermedia</option>
+                        <option value="Difícil">Difícil</option>
+                    </select>
+                </div>
+
+                <div class="col-12 form-group-premium">
+                    <label class="form-label-premium">Inspiración / Comentarios</label>
+                    <textarea class="premium-input w-100 py-3" @bind="recipe.Description" rows="3" placeholder="Añade algún detalle especial..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mold Config - Final Premium Version -->
+    <div class="px-3 section-gap">
+        <div class="card border-0 overflow-hidden shadow-md" style="background: var(--grad-soft); border-radius: 32px;">
+            <div class="p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <h5 class="fw-800 bordeaux-text mb-2">📏 Configuración de Escalado</h5>
+                    <p class="small bordeaux-text opacity-75">Define el tamaño del molde original para esta receta</p>
+                </div>
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="number" class="premium-pill-input" @bind="recipe.BaseMoldSize" />
+                        <span class="text-primary small fw-800 letter-spacing-1 m-0">CENTÍMETROS</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ingredients with Dropdown -->
+    <div class="px-3 section-gap">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <h5 class="fw-800 bordeaux-text m-0 fs-3">🍓 Ingredientes</h5>
+            <button class="btn-add-pro" @onclick="AddIngredient">+ Añadir Nuevo</button>
+        </div>
+        
+        <div class="ingredients-modern-list">
+            @foreach (var ing in recipe.Ingredients)
+            {
+                <div class="ing-modern-row mb-4 animate__animated animate__fadeInUp">
+                    <div class="ing-main-info">
+                        <input type="text" class="premium-input-soft w-100 py-3 px-3" @bind="ing.Name" placeholder="Ej: Azúcar Impalpable" />
+                    </div>
+                    <div class="ing-qty-group">
+                        <input type="text" class="premium-input-soft text-center fw-bold" @bind="ing.QuantityText" placeholder="Cant." />
+                        <select class="premium-input-soft premium-select" @bind="ing.Unit">
+                            @foreach (var unit in Units) { <option value="@unit">@unit</option> }
+                        </select>
+                    </div>
+                    <button class="btn-remove-ing" @onclick="() => recipe.Ingredients.Remove(ing)">✕</button>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Steps -->
+    <div class="px-3 section-gap">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <h5 class="fw-800 bordeaux-text m-0 fs-3">👩‍🍳 Pasos de Preparación</h5>
+            <button class="btn-add-pro" @onclick="AddStep">+ Nuevo Paso</button>
+        </div>
+
+        <div class="steps-modern-list">
+            @foreach (var step in recipe.Steps.OrderBy(s => s.Order))
+            {
+                <div class="step-modern-card mb-5 animate__animated animate__fadeInUp">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="step-chip">Paso @step.Order</span>
+                        <button class="btn-text-danger" @onclick="() => RemoveStep(step)">Eliminar Paso</button>
+                    </div>
+                    <textarea class="premium-input-soft w-100 border-0 fs-5" @bind="step.Description" rows="3" placeholder="Describe esta instrucción con detalle..."></textarea>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="action-bar-footer sticky-bottom py-4 px-3 d-flex gap-3">
+        <button class="btn btn-secondary-premium flex-grow-1 py-3" @onclick="GoBack">Cancelar</button>
+        <button class="btn btn-premium flex-grow-2 py-3 shadow-lg" @onclick="SaveRecipe" disabled="@isBusy">
+            @if (isBusy) { <span class="spinner-border spinner-border-sm me-2"></span> }
+            @(IsEditMode ? "Actualizar Receta ✨" : "Guardar en mi Cielo 🍓")
+        </button>
+    </div>
+</div>
+
+<style>
+    .bounce-icon { font-size: 3.5rem; animation: bounce 2s infinite; }
+    @@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .glass-container { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); }
+    .btn-add-pro { background: var(--bordeaux); color: white; border: none; padding: 8px 20px; border-radius: 15px; font-weight: 800; font-size: 0.8rem; transition: all 0.3s; }
+    .btn-add-pro:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(128,15,47,0.2); }
+    
+    /* Ingredient Row Refined */
+    .ing-modern-row { 
+        display: grid; 
+        grid-template-columns: 1fr 180px 40px; 
+        gap: 15px; 
+        background: white; 
+        padding: 15px; 
+        border-radius: 24px; 
+        box-shadow: var(--shadow-sm);
+        align-items: center;
+        position: relative;
+    }
+    .ing-qty-group { display: grid; grid-template-columns: 80px 1fr; gap: 8px; }
+    .premium-input-soft { background: #fdf2f4; border: none; border-radius: 14px; padding: 12px; font-size: 0.9rem; }
+    .premium-input-soft:focus { outline: 2px solid var(--primary-light); background: white; }
+    
+    .btn-remove-ing { border: none; background: #fee; color: var(--accent); width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+    
+    .step-modern-card { background: white; border-radius: 28px; padding: 25px; box-shadow: var(--shadow-sm); border-top: 6px solid var(--primary-light); }
+    .step-chip { background: var(--primary-lighter); color: var(--accent); padding: 4px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+    .btn-text-danger { background: none; border: none; color: var(--accent); font-size: 0.7rem; font-weight: 800; text-decoration: underline; }
+    
+    .action-bar-footer { background: linear-gradient(180deg, transparent 0%, rgba(255, 251, 251, 0.95) 30%); backdrop-filter: blur(5px); }
+    .flex-grow-2 { flex-grow: 2; }
+
+    @@media (max-width: 768px) {
+        .ing-modern-row { grid-template-columns: 1fr; }
+        .ing-qty-group { grid-template-columns: 1fr 1fr; }
+        .ing-modern-row { gap: 10px; }
+    }
+</style>
+
+@code {
+    [Parameter] public Guid? Id { get; set; }
+    private RecipeDto recipe = new();
+    private bool IsEditMode => Id.HasValue;
+    private bool isBusy = false;
+    private string? previewUrl;
+    private IBrowserFile? selectedFile;
+
+    private readonly List<string> Categories = new() { "Tortas", "Bizcochos", "Galletas", "Helados", "Tartas", "Otros" };
+    private readonly List<string> Units = new() { "Gr.", "Kg.", "Ml.", "Lts.", "Und.", "Tazas", "Cuch.", "Cuchta.", "Pizca" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (IsEditMode)
+        {
+            var existing = await RecipeService.GetRecipeByIdAsync(Id!.Value);
+            if (existing != null)
+            {
+                recipe = existing;
+                previewUrl = recipe.ImageUrl;
+            }
+        }
+        else
+        {
+            recipe.Category = Categories.First();
+            recipe.Difficulty = "Fácil";
+            recipe.BaseMoldSize = 20;
+            // Add a few empty ingredients for a better "premium" start
+            recipe.Ingredients.Add(new IngredientDto { Unit = "Gr." });
+        }
+    }
+
+    private void AddIngredient() => recipe.Ingredients.Add(new IngredientDto { Unit = "Gr." });
+    private void AddStep() => recipe.Steps.Add(new RecipeStepDto { Order = recipe.Steps.Count + 1 });
+    private void RemoveStep(RecipeStepDto step)
+    {
+        recipe.Steps.Remove(step);
+        for (int i = 0; i < recipe.Steps.Count; i++) recipe.Steps[i].Order = i + 1;
+    }
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+        var buffer = new byte[selectedFile.Size];
+        await selectedFile.OpenReadStream().ReadAsync(buffer);
+        previewUrl = $"data:{selectedFile.ContentType};base64,{Convert.ToBase64String(buffer)}";
+    }
+
+    private async Task SaveRecipe()
+    {
+        isBusy = true;
+        try
+        {
+            if (selectedFile != null)
+            {
+                var url = await RecipeService.UploadImageAsync(selectedFile.OpenReadStream(), $"web_{Guid.NewGuid()}.jpg");
+                if (url != null) recipe.ImageUrl = url;
+            }
+
+            if (IsEditMode) await RecipeService.UpdateRecipeAsync(recipe);
+            else await RecipeService.CreateRecipeAsync(recipe);
+
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        finally { isBusy = false; }
+    }
+
+    private void GoBack() => Navigation.NavigateTo("/");
+}

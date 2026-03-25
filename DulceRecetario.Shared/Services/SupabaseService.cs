@@ -1,10 +1,7 @@
 using Supabase;
 
-namespace DulceRecetario.Services;
+namespace DulceRecetario.Shared.Services;
 
-/// <summary>
-/// Proveedor del cliente Supabase (Singleton via DI).
-/// </summary>
 public class SupabaseService
 {
     private Client? _client;
@@ -20,7 +17,7 @@ public class SupabaseService
         {
             if (_client is null)
             {
-                if (string.IsNullOrWhiteSpace(SupabaseConfig.Url) || SupabaseConfig.Url.Contains("YOUR_PROJECT_REF"))
+                if (string.IsNullOrWhiteSpace(SupabaseConfig.Url))
                     throw new InvalidOperationException("Supabase URL no configurada.");
 
                 var options = new SupabaseOptions
@@ -30,17 +27,7 @@ public class SupabaseService
                 };
                 
                 _client = new Client(SupabaseConfig.Url, SupabaseConfig.AnonKey, options);
-                
-                try 
-                {
-                    await _client.InitializeAsync();
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error inicializando Supabase: {ex.Message}");
-                    _client = null; // Reintenta luego
-                    throw;
-                }
+                await _client.InitializeAsync();
             }
         }
         finally

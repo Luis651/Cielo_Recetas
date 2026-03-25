@@ -1,0 +1,19 @@
+{
+  "main_namespace": "DulceRecetario.Web",
+  "short_name": "Cielo Recetas",
+  "name": "Cielo Recetas - Repostería Premium",
+  "description": "Tu recetario inteligente para escalado de moldes y repostería creativa.",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fffbfb",
+  "theme_color": "#ff4d6d"
+}

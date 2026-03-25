@@ -1,15 +1,12 @@
 using System.Text.Json;
 using System.Diagnostics;
 using System.IO;
-using DulceRecetario.DTOs;
-using DulceRecetario.Models;
+using DulceRecetario.Shared.DTOs;
+using DulceRecetario.Shared.Models;
 using Supabase;
 
-namespace DulceRecetario.Services;
+namespace DulceRecetario.Shared.Services;
 
-/// <summary>
-/// Servicio CRUD para el manejo de recetas contra Supabase.
-/// </summary>
 public class RecipeService
 {
     private readonly SupabaseService _supabaseService;
@@ -19,8 +16,6 @@ public class RecipeService
     {
         _supabaseService = supabaseService;
     }
-
-    // ── READ ─────────────────────────────────────────────────────────────
 
     public async Task<List<RecipeDto>> GetAllRecipesAsync()
     {
@@ -34,14 +29,7 @@ public class RecipeService
             var dtos = new List<RecipeDto>();
             foreach (var model in response.Models)
             {
-                try 
-                {
-                    dtos.Add(MapToDto(model));
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Error mapeando receta {model.Id}: {ex.Message}");
-                }
+                dtos.Add(MapToDto(model));
             }
             return dtos;
         }
@@ -83,8 +71,6 @@ public class RecipeService
         return response is null ? null : MapToDto(response);
     }
 
-    // ── CREATE ────────────────────────────────────────────────────────────
-
     public async Task<RecipeDto?> CreateRecipeAsync(RecipeDto dto)
     {
         var client = await _supabaseService.GetClientAsync();
@@ -96,8 +82,6 @@ public class RecipeService
         var response = await client.From<Recipe>().Insert(model);
         return response.Models.FirstOrDefault() is { } created ? MapToDto(created) : null;
     }
-
-    // ── UPDATE ────────────────────────────────────────────────────────────
 
     public async Task<RecipeDto?> UpdateRecipeAsync(RecipeDto dto)
     {
@@ -118,8 +102,6 @@ public class RecipeService
             .Update();
     }
 
-    // ── DELETE ────────────────────────────────────────────────────────────
-
     public async Task DeleteRecipeAsync(Guid id)
     {
         var client = await _supabaseService.GetClientAsync();
@@ -127,8 +109,6 @@ public class RecipeService
             .Filter("id", Postgrest.Constants.Operator.Equals, id.ToString())
             .Delete();
     }
-
-    // ── STORAGE ──────────────────────────────────────────────────────────
 
     public async Task<string?> UploadImageAsync(Stream imageStream, string fileName)
     {
@@ -155,22 +135,13 @@ public class RecipeService
         }
     }
 
-    // ── MAPPING ───────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Intenta parsear un campo JSON de Supabase que puede venir como un JArray nativo o como un string ("[{...}]").
-    /// </summary>
     private static List<T> ParseMixedJsonbArray<T>(object? rawValue)
     {
         if (rawValue == null) return new List<T>();
-
         try
         {
             var jsonString = rawValue.ToString();
             if (string.IsNullOrWhiteSpace(jsonString)) return new List<T>();
-
-            // Si vino como string escapado tipo "\[{...}\]", ToString() nos dará la cadena limpia
-            // Si vino como JArray nativo, ToString() suele dar el JSON real "[{...}]"
             return JsonSerializer.Deserialize<List<T>>(jsonString, _jsonOptions) ?? new List<T>();
         }
         catch (Exception ex)
@@ -195,7 +166,6 @@ public class RecipeService
             ImageUrl = model.ImageUrl,
             IsFavorite = model.IsFavorite,
             CreatedAt = model.CreatedAt,
-            // Parseamos robustamente desde object? (puede ser string o JArray)
             Ingredients = ParseMixedJsonbArray<IngredientDto>(model.IngredientsRaw),
             Steps = ParseMixedJsonbArray<RecipeStepDto>(model.StepsRaw)
         };
@@ -213,9 +183,6 @@ public class RecipeService
         BaseMoldSize = dto.BaseMoldSize,
         ImageUrl = dto.ImageUrl,
         IsFavorite = dto.IsFavorite,
-        // Al guardar enviamos diccionarios o serializamos a C# Types. 
-        // Postgrest prefiere arrays u objetos definidos para columnas JSONB, 
-        // pero podemos mandar una cadena serializada y dejar que Postgrest la guarde como string.
         IngredientsRaw = JsonSerializer.Serialize(dto.Ingredients, _jsonOptions),
         StepsRaw = JsonSerializer.Serialize(dto.Steps, _jsonOptions)
     };

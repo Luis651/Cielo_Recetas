@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace DulceRecetario.DTOs;
+namespace DulceRecetario.Shared.DTOs;
 
 public class RecipeDto
 {
@@ -12,7 +12,6 @@ public class RecipeDto
     public int PrepTimeMinutes { get; set; }
     public int Servings { get; set; } = 1;
 
-    // Nuevo: Tamaño de molde base (cm) para escalado
     public double BaseMoldSize { get; set; } = 20.0;
 
     public string? ImageUrl { get; set; }
@@ -21,6 +20,5 @@ public class RecipeDto
 
     public List<IngredientDto> Ingredients { get; set; } = new();
     
-    // Nuevo: Pasos de la receta
     public List<RecipeStepDto> Steps { get; set; } = new();
 }

@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using DulceRecetario.DTOs;
-using DulceRecetario.Services;
+using DulceRecetario.Shared.DTOs;
+using DulceRecetario.Shared.Services;
 
 namespace DulceRecetario.ViewModels;
 

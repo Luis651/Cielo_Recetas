@@ -1,4 +1,4 @@
-namespace DulceRecetario.DTOs;
+namespace DulceRecetario.Shared.DTOs;
 
 public class RecipeStepDto
 {

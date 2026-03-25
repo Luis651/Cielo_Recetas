@@ -67,10 +67,22 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
+	<!-- Evitar que el proyecto MAUI intente compilar los otros subproyectos -->
+	<ItemGroup>
+		<Compile Remove="DulceRecetario.Shared\**" />
+		<None Remove="DulceRecetario.Shared\**" />
+		<Compile Remove="DulceRecetario.Web\**" />
+		<None Remove="DulceRecetario.Web\**" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
 		<PackageReference Include="supabase-csharp" Version="0.16.2" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="DulceRecetario.Shared\DulceRecetario.Shared.csproj" />
 	</ItemGroup>
 
 </Project>
