@@ -89,16 +89,16 @@
                                         BorderColor="Transparent"
                                         HasShadow="True">
                                         <Grid>
-                                            <Image 
-                                                Source="{Binding ImageUrl, TargetNullValue='dotnet_bot.png'}" 
-                                                Aspect="AspectFill" 
-                                                Opacity="0.8" />
                                             <Grid.Background>
                                                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                                     <GradientStop Color="Transparent" Offset="0.5" />
                                                     <GradientStop Color="#CC000000" Offset="1.0" />
                                                 </LinearGradientBrush>
                                             </Grid.Background>
+                                            <Image 
+                                                Source="{Binding ImageUrl, TargetNullValue='dotnet_bot.png'}" 
+                                                Aspect="AspectFill" 
+                                                Opacity="0.8" />
                                             <Label 
                                                 Text="{Binding Name}"
                                                 TextColor="White"

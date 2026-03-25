@@ -18,6 +18,14 @@
         <VerticalStackLayout Spacing="0">
             <!-- Sección de Selección de Imagen (Reemplaza Header Banner) -->
             <Grid HeightRequest="220" BackgroundColor="{StaticResource PageBackground}">
+                <!-- Overlay con degradado para legibilidad (Posicionado antes del contenido) -->
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="Transparent" Offset="0.5" />
+                        <GradientStop Color="#99000000" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+
                 <!-- Imagen de fondo / Placeholder -->
                 <Image 
                     Source="{Binding SelectedImageSource, TargetNullValue='dotnet_bot.png'}" 
@@ -31,14 +39,6 @@
                         </DataTrigger>
                     </Image.Triggers>
                 </Image>
-                
-                <!-- Overlay con degradado para legibilidad -->
-                <Grid.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="Transparent" Offset="0.5" />
-                        <GradientStop Color="#99000000" Offset="1.0" />
-                    </LinearGradientBrush>
-                </Grid.Background>
 
                 <!-- Botones de Acción -->
                 <HorizontalStackLayout VerticalOptions="End" HorizontalOptions="Center" Spacing="15" Margin="0,0,0,20">
