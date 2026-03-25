@@ -17,19 +17,16 @@
     <ScrollView>
         <VerticalStackLayout Spacing="0">
             <!-- Header Image/Banner Area -->
-            <Grid HeightRequest="220">
+            <Grid HeightRequest="300">
+                <Image 
+                    Source="{Binding Recipe.ImageUrl, TargetNullValue='dotnet_bot.png'}" 
+                    Aspect="AspectFill" />
                 <Grid.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
-                        <GradientStop Color="{StaticResource Accent}" Offset="1.0" />
+                        <GradientStop Color="Transparent" Offset="0.6" />
+                        <GradientStop Color="#99000000" Offset="1.0" />
                     </LinearGradientBrush>
                 </Grid.Background>
-                <Image 
-                    Source="dotnet_bot.png" 
-                    Aspect="AspectFit" 
-                    Margin="40"
-                    VerticalOptions="Center" 
-                    HorizontalOptions="Center" />
             </Grid>
 
             <VerticalStackLayout Spacing="24" Padding="24" Margin="0,-30,0,0">

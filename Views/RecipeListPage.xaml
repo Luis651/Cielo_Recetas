@@ -27,13 +27,14 @@
                             <GradientStop Color="{StaticResource Accent}" Offset="1.0" />
                         </LinearGradientBrush>
                     </Grid.Background>
-                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="20" Padding="30">
-                        <Image 
-                            Source="dotnet_bot.png" 
-                            HeightRequest="100" 
-                            HorizontalOptions="Center" />
+                        <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="20" Padding="30">
+                            <!-- Hero image could be a static high-res dessert or just the logo -->
+                            <Image 
+                                Source="logo_cielo.jpeg" 
+                                HeightRequest="100" 
+                                HorizontalOptions="Center" />
                         <Label 
-                            Text="Descubre cada semana nuevas y deliciosas recetas"
+                            Text="Hornea tus sueños, un paso a la vez"
                             TextColor="White"
                             FontSize="24"
                             FontAttributes="Bold"
@@ -88,16 +89,16 @@
                                         BorderColor="Transparent"
                                         HasShadow="True">
                                         <Grid>
+                                            <Image 
+                                                Source="{Binding ImageUrl, TargetNullValue='dotnet_bot.png'}" 
+                                                Aspect="AspectFill" 
+                                                Opacity="0.8" />
                                             <Grid.Background>
                                                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                                     <GradientStop Color="Transparent" Offset="0.5" />
                                                     <GradientStop Color="#CC000000" Offset="1.0" />
                                                 </LinearGradientBrush>
                                             </Grid.Background>
-                                            <Image 
-                                                Source="dotnet_bot.png" 
-                                                Aspect="AspectFill" 
-                                                Opacity="0.8" />
                                             <Label 
                                                 Text="{Binding Name}"
                                                 TextColor="White"
@@ -144,7 +145,7 @@
                                         <Grid ColumnDefinitions="120, *" HeightRequest="120">
                                             <Image 
                                                 Grid.Column="0"
-                                                Source="dotnet_bot.png"
+                                                Source="{Binding ImageUrl, TargetNullValue='dotnet_bot.png'}"
                                                 Aspect="AspectFill" />
                                             
                                             <VerticalStackLayout Grid.Column="1" Padding="12" Spacing="4" VerticalOptions="Fill">

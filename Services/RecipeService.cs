@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Diagnostics;
+using System.IO;
 using DulceRecetario.DTOs;
 using DulceRecetario.Models;
 using Supabase;
@@ -125,6 +126,33 @@ public class RecipeService
         await client.From<Recipe>()
             .Filter("id", Postgrest.Constants.Operator.Equals, id.ToString())
             .Delete();
+    }
+
+    // ── STORAGE ──────────────────────────────────────────────────────────
+
+    public async Task<string?> UploadImageAsync(Stream imageStream, string fileName)
+    {
+        try
+        {
+            var client = await _supabaseService.GetClientAsync();
+            var storage = client.Storage;
+            var bucket = storage.From("recetas");
+
+            byte[] bytes;
+            using (var memoryStream = new MemoryStream())
+            {
+                await imageStream.CopyToAsync(memoryStream);
+                bytes = memoryStream.ToArray();
+            }
+
+            await bucket.Upload(bytes, fileName, new Supabase.Storage.FileOptions { Upsert = true });
+            return bucket.GetPublicUrl(fileName);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error subiendo imagen: {ex.Message}");
+            return null;
+        }
     }
 
     // ── MAPPING ───────────────────────────────────────────────────────────

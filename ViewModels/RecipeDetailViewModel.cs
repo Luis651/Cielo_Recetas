@@ -6,6 +6,7 @@ using DulceRecetario.Services;
 namespace DulceRecetario.ViewModels;
 
 [QueryProperty(nameof(RecipeId), "RecipeId")]
+[QueryProperty(nameof(Refresh), "refresh")]
 public class RecipeDetailViewModel : BaseViewModel
 {
     private readonly RecipeService _recipeService;
@@ -15,6 +16,13 @@ public class RecipeDetailViewModel : BaseViewModel
     {
         get => _recipeId;
         set { _recipeId = value; _ = LoadRecipeAsync(); }
+    }
+
+    private bool _refresh;
+    public bool Refresh
+    {
+        get => _refresh;
+        set { _refresh = value; if (value) _ = LoadRecipeAsync(); }
     }
 
     private RecipeDto? _recipe;

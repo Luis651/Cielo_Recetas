@@ -108,5 +108,6 @@ public abstract class BaseViewModel : INotifyPropertyChanged
         return Shell.Current.GoToAsync(route);
     }
 
-    protected static Task GoBackAsync() => Shell.Current.GoToAsync("..");
+    protected static Task GoBackAsync(bool refresh = false) => 
+        refresh ? Shell.Current.GoToAsync("..?refresh=true") : Shell.Current.GoToAsync("..");
 }

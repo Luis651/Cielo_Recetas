@@ -14,6 +14,10 @@
             <helpers:InvertedBoolConverter x:Key="InvertedBoolConverter" />
 
             <helpers:BoolToHeartConverter x:Key="BoolToHeartConverter" />
+
+            <helpers:IsNullConverter x:Key="IsNullConverter" />
+
+            <helpers:IsNotNullConverter x:Key="IsNotNullConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

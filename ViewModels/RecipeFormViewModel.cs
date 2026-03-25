@@ -1,5 +1,6 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.IO;
 using DulceRecetario.DTOs;
 using DulceRecetario.Services;
 
@@ -59,6 +60,14 @@ public class RecipeFormViewModel : BaseViewModel
     private double _baseMoldSize = 20.0;
     public double BaseMoldSize { get => _baseMoldSize; set => SetProperty(ref _baseMoldSize, value); }
 
+    private string? _imageUrl;
+    public string? ImageUrl { get => _imageUrl; set => SetProperty(ref _imageUrl, value); }
+
+    private ImageSource? _selectedImageSource;
+    public ImageSource? SelectedImageSource { get => _selectedImageSource; set => SetProperty(ref _selectedImageSource, value); }
+
+    private Stream? _selectedImageStream;
+
     // Ingredientes (HU-001)
     public ObservableCollection<IngredientDto> Ingredients { get; } = new();
 
@@ -86,6 +95,8 @@ public class RecipeFormViewModel : BaseViewModel
     public ICommand RemoveIngredientCommand { get; }
     public ICommand AddStepCommand { get; }
     public ICommand RemoveStepCommand { get; }
+    public ICommand SelectImageCommand { get; }
+    public ICommand TakePhotoCommand { get; }
 
     public RecipeFormViewModel(RecipeService recipeService)
     {
@@ -94,6 +105,8 @@ public class RecipeFormViewModel : BaseViewModel
 
         SaveCommand = new Command(async () => await SaveRecipeAsync(), () => !string.IsNullOrWhiteSpace(Name) && !IsBusy);
         CancelCommand = new Command(async () => await GoBackAsync());
+        SelectImageCommand = new Command(async () => await SelectImageAsync());
+        TakePhotoCommand = new Command(async () => await TakePhotoAsync());
         
         AddIngredientCommand = new Command(() => 
         {
@@ -137,6 +150,65 @@ public class RecipeFormViewModel : BaseViewModel
         }
     }
 
+    private async Task SelectImageAsync()
+    {
+        try
+        {
+            var result = await MediaPicker.Default.PickPhotoAsync();
+            if (result != null)
+            {
+                var stream = await result.OpenReadAsync();
+                var memStream = new MemoryStream();
+                await stream.CopyToAsync(memStream);
+                memStream.Position = 0;
+                
+                _selectedImageStream = memStream;
+                SelectedImageSource = ImageSource.FromStream(() => new MemoryStream(memStream.ToArray()));
+            }
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", "No se pudo seleccionar la imagen: " + ex.Message, "OK");
+        }
+    }
+
+    private async Task TakePhotoAsync()
+    {
+        try
+        {
+            var status = await Permissions.CheckStatusAsync<Permissions.Camera>();
+            if (status != PermissionStatus.Granted)
+            {
+                status = await Permissions.RequestAsync<Permissions.Camera>();
+            }
+
+            if (status != PermissionStatus.Granted)
+            {
+                await Shell.Current.DisplayAlert("Permiso", "Se requiere permiso de cámara para tomar fotos.", "OK");
+                return;
+            }
+
+            if (MediaPicker.Default.IsCaptureSupported)
+            {
+                var result = await MediaPicker.Default.CapturePhotoAsync();
+                if (result != null)
+                {
+                    var stream = await result.OpenReadAsync();
+                    var memStream = new MemoryStream();
+                    await stream.CopyToAsync(memStream);
+                    memStream.Position = 0;
+                    
+                    _selectedImageStream = memStream;
+                    SelectedImageSource = ImageSource.FromStream(() => new MemoryStream(memStream.ToArray()));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", "No se pudo tomar la foto: " + ex.Message, "OK");
+        }
+    }
+
     protected override void OnIsBusyChanged()
     {
         ((Command)SaveCommand).ChangeCanExecute();
@@ -156,6 +228,12 @@ public class RecipeFormViewModel : BaseViewModel
             PrepTimeMinutes = recipe.PrepTimeMinutes;
             Servings = recipe.Servings;
             BaseMoldSize = recipe.BaseMoldSize;
+            ImageUrl = recipe.ImageUrl;
+
+            if (!string.IsNullOrEmpty(ImageUrl))
+            {
+                SelectedImageSource = ImageSource.FromUri(new Uri(ImageUrl));
+            }
 
             Ingredients.Clear();
             foreach (var ing in recipe.Ingredients)
@@ -184,6 +262,24 @@ public class RecipeFormViewModel : BaseViewModel
 
         await ExecuteAsync(async () =>
         {
+            // 1. Subir imagen si se seleccionó una nueva
+            if (_selectedImageStream != null)
+            {
+                IsBusy = true;
+                _selectedImageStream.Position = 0; // Asegurar que estamos al inicio
+                var fileName = $"recipe_{Guid.NewGuid()}.jpg";
+                var uploadedUrl = await _recipeService.UploadImageAsync(_selectedImageStream, fileName);
+                if (uploadedUrl != null)
+                {
+                    ImageUrl = uploadedUrl;
+                }
+                else
+                {
+                    await Shell.Current.DisplayAlert("Error", "No se pudo subir la imagen a Supabase. Verifica la conexión y los permisos del bucket 'recetas'.", "Aceptar");
+                }
+                IsBusy = false;
+            }
+
             // Filter out empty ingredients
             var validIngredients = Ingredients
                 .Where(i => !string.IsNullOrWhiteSpace(i.Name))
@@ -204,20 +300,28 @@ public class RecipeFormViewModel : BaseViewModel
                 PrepTimeMinutes = PrepTimeMinutes,
                 Servings = Servings,
                 BaseMoldSize = BaseMoldSize,
+                ImageUrl = ImageUrl,
                 Ingredients = validIngredients,
                 Steps = validSteps
             };
 
             bool success;
             if (IsEditMode)
+            {
+                // Preserve favorite status if edit
+                var existing = await _recipeService.GetRecipeByIdAsync(RecipeId);
+                if (existing != null) dto.IsFavorite = existing.IsFavorite;
                 success = await _recipeService.UpdateRecipeAsync(dto) != null;
+            }
             else
+            {
                 success = await _recipeService.CreateRecipeAsync(dto) != null;
+            }
 
             if (success)
             {
                 await Shell.Current.DisplayAlert("¡Éxito!", "Receta guardada correctamente 🍰", "Genial");
-                await GoBackAsync();
+                await GoBackAsync(refresh: true);
             }
             else
             {

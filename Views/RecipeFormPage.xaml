@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:DulceRecetario.ViewModels"
     xmlns:dto="clr-namespace:DulceRecetario.DTOs"
+    xmlns:helpers="clr-namespace:DulceRecetario.Helpers"
     x:DataType="vm:RecipeFormViewModel"
     Title="{Binding FormTitle}"
     BackgroundColor="White">
@@ -15,28 +16,55 @@
 
     <ScrollView>
         <VerticalStackLayout Spacing="0">
-            <!-- Header Banner -->
-            <Grid HeightRequest="160">
+            <!-- Sección de Selección de Imagen (Reemplaza Header Banner) -->
+            <Grid HeightRequest="220" BackgroundColor="{StaticResource PageBackground}">
+                <!-- Imagen de fondo / Placeholder -->
+                <Image 
+                    Source="{Binding SelectedImageSource, TargetNullValue='dotnet_bot.png'}" 
+                    Aspect="AspectFill">
+                    <Image.Triggers>
+                        <DataTrigger TargetType="Image" Binding="{Binding SelectedImageSource, Converter={StaticResource IsNullConverter}}" Value="True">
+                            <Setter Property="Opacity" Value="0.5" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Image" Binding="{Binding SelectedImageSource, Converter={StaticResource IsNotNullConverter}}" Value="True">
+                            <Setter Property="Opacity" Value="1.0" />
+                        </DataTrigger>
+                    </Image.Triggers>
+                </Image>
+                
+                <!-- Overlay con degradado para legibilidad -->
                 <Grid.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="{StaticResource Primary}" Offset="0.0" />
-                        <GradientStop Color="{StaticResource Accent}" Offset="1.0" />
+                        <GradientStop Color="Transparent" Offset="0.5" />
+                        <GradientStop Color="#99000000" Offset="1.0" />
                     </LinearGradientBrush>
                 </Grid.Background>
-                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="4">
-                    <Label 
-                        Text="{Binding FormTitle}" 
-                        TextColor="White" 
-                        FontSize="32" 
-                        FontAttributes="Bold" 
-                        HorizontalOptions="Center" />
-                    <Label 
-                        Text="Diseña tu próxima obra de arte" 
-                        TextColor="White" 
-                        FontSize="14" 
-                        HorizontalOptions="Center" 
-                        Opacity="0.9" />
-                </VerticalStackLayout>
+
+                <!-- Botones de Acción -->
+                <HorizontalStackLayout VerticalOptions="End" HorizontalOptions="Center" Spacing="15" Margin="0,0,0,20">
+                    <Button 
+                        Text="📷 Cámara" 
+                        Command="{Binding TakePhotoCommand}" 
+                        Style="{StaticResource SecondaryButton}" 
+                        HeightRequest="40" 
+                        Padding="15,0" />
+                    <Button 
+                        Text="🖼 Galería" 
+                        Command="{Binding SelectImageCommand}" 
+                        Style="{StaticResource SecondaryButton}" 
+                        HeightRequest="40" 
+                        Padding="15,0" />
+                </HorizontalStackLayout>
+
+                <!-- Label Indicador si no hay imagen -->
+                <Label 
+                    Text="Toca para añadir una foto" 
+                    TextColor="White" 
+                    FontSize="12" 
+                    HorizontalOptions="Center" 
+                    VerticalOptions="End" 
+                    Margin="0,0,0,5"
+                    IsVisible="{Binding SelectedImageSource, Converter={StaticResource IsNullConverter}}" />
             </Grid>
 
             <VerticalStackLayout Spacing="24" Padding="20" Margin="0,-20,0,0">
