@@ -1,10 +1,10 @@
 {
   "mainAssemblyName": "DulceRecetario.Web",
   "resources": {
-    "hash": "sha256-QirrW1lolllo9cd7Pk7BtIO65u68lv5i9TeyRUaLZQ4=",
+    "hash": "sha256-NkjQjUBKZ1z7QcC7IEbXcIzihvDPDH6bk/0pEWvm5ko=",
     "fingerprinting": {
-      "DulceRecetario.Shared.y77frlt6m7.wasm": "DulceRecetario.Shared.wasm",
-      "DulceRecetario.Web.j15gcb859u.wasm": "DulceRecetario.Web.wasm",
+      "DulceRecetario.Shared.vzusvr0c46.wasm": "DulceRecetario.Shared.wasm",
+      "DulceRecetario.Web.27nrtgl9vw.wasm": "DulceRecetario.Web.wasm",
       "Microsoft.AspNetCore.Authorization.pfmxl9lzqq.wasm": "Microsoft.AspNetCore.Authorization.wasm",
       "Microsoft.AspNetCore.Components.Authorization.gtg2riohx5.wasm": "Microsoft.AspNetCore.Components.Authorization.wasm",
       "Microsoft.AspNetCore.Components.Web.6asu9bnjk3.wasm": "Microsoft.AspNetCore.Components.Web.wasm",
@@ -124,8 +124,8 @@
       "System.Runtime.InteropServices.JavaScript.scprsuo250.wasm": "sha256-HI1L3LXaCLgFXx26TfH4FPR0Jc2WhemjetY64kkvMM0="
     },
     "assembly": {
-      "DulceRecetario.Shared.y77frlt6m7.wasm": "sha256-sm41pj9/GobZJKmrvFTiVKql+t8gsMvhcLPYjwLsIcA=",
-      "DulceRecetario.Web.j15gcb859u.wasm": "sha256-eSq7OOThUW/sjtS9ue4eGcjKh2XyQ6N75bpIdau4DQc=",
+      "DulceRecetario.Shared.vzusvr0c46.wasm": "sha256-FamqSSwTC7qNt8+cd7RAXPVGiJHSxmdTSm6uw4SF4cc=",
+      "DulceRecetario.Web.27nrtgl9vw.wasm": "sha256-Lrvwq5GwqPNmbbyNgA8HhIapUE95KgNTuoEfhoic5iw=",
       "Microsoft.AspNetCore.Authorization.pfmxl9lzqq.wasm": "sha256-Kwe9UNX8jzj3Kh9B3XpzwX4+5U3GROw+a3QSHTpKLKI=",
       "Microsoft.AspNetCore.Components.Authorization.gtg2riohx5.wasm": "sha256-XPuZIdRQFsu+fnbuBLWsvajexpgKtYmByJAakp7P0bs=",
       "Microsoft.AspNetCore.Components.Web.6asu9bnjk3.wasm": "sha256-rs+a80CFjIIDUzUgt7F8UfP8l2Mq2tA/gG8P/dDUlW4=",
