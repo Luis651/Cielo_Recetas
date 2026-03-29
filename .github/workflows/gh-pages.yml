@@ -1,0 +1,36 @@
+name: Desplegar en GitHub Pages 🍓
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configurar .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x' 
+
+      - name: Publicar APP
+        run: dotnet publish DulceRecetario.Web/DulceRecetario.Web.csproj -c Release -o release
+
+      # Este paso es CRUCIAL: GitHub Pages por defecto busca los archivos en el nombre del repo
+      # Si tu repo se llama 'Cielo_Recetas', la base debe ser '/Cielo_Recetas/'
+      - name: Cambiar Base Href (Opcional si usas dominio propio)
+        run: |
+          sed -i 's/<base href="\/" \/>/<base href="\/Cielo_Recetas\/" \/>/g' release/wwwroot/index.html
+          sed -i 's/<base href="\/" \/>/<base href="\/Cielo_Recetas\/" \/>/g' release/wwwroot/404.html
+
+      - name: Desplegar a GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+            folder: release/wwwroot
+            branch: gh-pages
