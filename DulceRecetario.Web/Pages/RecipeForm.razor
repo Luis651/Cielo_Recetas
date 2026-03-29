@@ -215,6 +215,7 @@
 
     private readonly List<string> Categories = new() { "Tortas", "Bizcochos", "Galletas", "Helados", "Tartas", "Otros" };
     private readonly List<string> Units = new() { "Gr.", "Kg.", "Ml.", "Lts.", "Und.", "Tazas", "Cuch.", "Cuchta.", "Pizca" };
+    private const long MaxFileSize = 10 * 1024 * 1024; // 10MB
 
     protected override async Task OnInitializedAsync()
     {
@@ -249,7 +250,7 @@
     {
         selectedFile = e.File;
         var buffer = new byte[selectedFile.Size];
-        await selectedFile.OpenReadStream().ReadAsync(buffer);
+        await selectedFile.OpenReadStream(MaxFileSize).ReadAsync(buffer);
         previewUrl = $"data:{selectedFile.ContentType};base64,{Convert.ToBase64String(buffer)}";
     }
 
@@ -268,7 +269,7 @@
 
             if (selectedFile != null)
             {
-                var url = await RecipeService.UploadImageAsync(selectedFile.OpenReadStream(), $"web_{Guid.NewGuid()}.jpg");
+                var url = await RecipeService.UploadImageAsync(selectedFile.OpenReadStream(MaxFileSize), $"web_{Guid.NewGuid()}.jpg");
                 if (url != null) recipe.ImageUrl = url;
             }
 
