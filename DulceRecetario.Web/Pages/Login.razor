@@ -1,0 +1,246 @@
+@page "/login"
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+@using DulceRecetario.Shared.Services
+
+<PageTitle>@(isRegister ? "Crear cuenta" : "Iniciar sesión") · Cielo Recetas</PageTitle>
+
+<div class="login-wrapper">
+    <div class="login-card animate__animated animate__fadeInUp">
+
+        <!-- Logo / Marca -->
+        <div class="login-brand mb-4">
+            <div class="brand-icon">🍓</div>
+            <h1 class="brand-title mt-2 mb-0">Cielo Recetas</h1>
+            <p class="brand-sub">Tu recetario de repostería premium</p>
+        </div>
+
+        <!-- Toggle Login / Registro -->
+        <div class="mode-toggle mb-5">
+            <button class="@(isRegister ? "" : "active")" @onclick="() => SetMode(false)">Entrar</button>
+            <button class="@(isRegister ? "active" : "")" @onclick="() => SetMode(true)">Crear cuenta</button>
+        </div>
+
+        <!-- Formulario -->
+        <div class="form-fields">
+            <div class="form-group-premium mb-4">
+                <label class="form-label-premium" for="email">Correo electrónico</label>
+                <input id="email"
+                       type="email"
+                       class="premium-input form-control"
+                       placeholder="tu@correo.com"
+                       @bind="email"
+                       @bind:event="oninput"
+                       autocomplete="email"
+                       @onkeyup="HandleKeyUp" />
+            </div>
+
+            <div class="form-group-premium mb-4">
+                <label class="form-label-premium" for="password">Contraseña</label>
+                <div class="password-wrapper">
+                    <input id="password"
+                           type="@(showPassword ? "text" : "password")"
+                           class="premium-input form-control"
+                           placeholder="Mínimo 6 caracteres"
+                           @bind="password"
+                           @bind:event="oninput"
+                           autocomplete="@(isRegister ? "new-password" : "current-password")"
+                           @onkeyup="HandleKeyUp" />
+                    <button type="button" class="password-toggle" @onclick="() => showPassword = !showPassword">
+                        @(showPassword ? "🙈" : "👁")
+                    </button>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="error-pill animate__animated animate__shakeX">
+                    ⚠️ @errorMessage
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="success-pill animate__animated animate__fadeIn">
+                    ✅ @successMessage
+                </div>
+            }
+
+            <button class="btn btn-premium w-100 mt-3"
+                    @onclick="HandleSubmit"
+                    disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span>🍓&nbsp; Horneando...</span>
+                }
+                else
+                {
+                    <span>@(isRegister ? "Crear mi cuenta" : "Entrar al recetario")</span>
+                }
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .login-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--grad-soft);
+        padding: 20px;
+        padding-top: calc(20px + var(--safe-top));
+        padding-bottom: calc(20px + var(--safe-bottom));
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 40px;
+        padding: 48px 40px;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: var(--shadow-lg);
+        border: 1px solid rgba(255, 77, 109, 0.08);
+    }
+
+    .login-brand { text-align: center; }
+    .brand-icon { font-size: 3rem; }
+    .brand-sub { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+
+    .mode-toggle {
+        display: flex;
+        background: var(--primary-lighter);
+        border-radius: 20px;
+        padding: 5px;
+        gap: 5px;
+    }
+    .mode-toggle button {
+        flex: 1;
+        border: none;
+        background: transparent;
+        border-radius: 15px;
+        padding: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .mode-toggle button.active {
+        background: white;
+        color: var(--accent);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .password-wrapper { position: relative; }
+    .password-toggle {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 1.1rem;
+        cursor: pointer;
+        opacity: 0.6;
+        transition: opacity 0.2s;
+    }
+    .password-toggle:hover { opacity: 1; }
+
+    .error-pill {
+        background: #fff0f3;
+        border: 1.5px solid var(--primary-lighter);
+        color: var(--accent);
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .success-pill {
+        background: #f0fff4;
+        border: 1.5px solid #c6f6d5;
+        color: #276749;
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    @@media (max-width: 480px) {
+        .login-card { padding: 36px 24px; }
+    }
+</style>
+
+@code {
+    private string email = "";
+    private string password = "";
+    private string? errorMessage;
+    private string? successMessage;
+    private bool isLoading;
+    private bool isRegister;
+    private bool showPassword;
+
+    protected override void OnInitialized()
+    {
+        // Si ya hay sesión, ir al home directamente
+        if (AuthService.IsAuthenticated)
+            Navigation.NavigateTo("/", replace: true);
+    }
+
+    private void SetMode(bool register)
+    {
+        isRegister = register;
+        errorMessage = null;
+        successMessage = null;
+    }
+
+    private async Task HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await HandleSubmit();
+    }
+
+    private async Task HandleSubmit()
+    {
+        errorMessage = null;
+        successMessage = null;
+
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            errorMessage = "Por favor escribe tu correo y contraseña.";
+            return;
+        }
+
+        isLoading = true;
+
+        if (isRegister)
+        {
+            var (success, error) = await AuthService.SignUpAsync(email.Trim(), password);
+            isLoading = false;
+            if (success)
+            {
+                if (AuthService.IsAuthenticated)
+                    Navigation.NavigateTo("/", replace: true);
+                else
+                    successMessage = "¡Cuenta creada! Revisa tu correo para confirmar tu cuenta y luego inicia sesión.";
+            }
+            else
+            {
+                errorMessage = error;
+            }
+        }
+        else
+        {
+            var (success, error) = await AuthService.SignInAsync(email.Trim(), password);
+            isLoading = false;
+            if (success)
+                Navigation.NavigateTo("/", replace: true);
+            else
+                errorMessage = error;
+        }
+    }
+}

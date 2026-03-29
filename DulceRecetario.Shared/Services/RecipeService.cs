@@ -10,28 +10,43 @@ namespace DulceRecetario.Shared.Services;
 public class RecipeService
 {
     private readonly SupabaseService _supabaseService;
+    private readonly AuthService _authService;
     private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public RecipeService(SupabaseService supabaseService)
+    public RecipeService(SupabaseService supabaseService, AuthService authService)
     {
         _supabaseService = supabaseService;
+        _authService = authService;
     }
+
+    // ── Helpers ─────────────────────────────────────────────────────────────
+
+    private string RequireUserId()
+    {
+        var uid = _authService.CurrentUserId;
+        if (string.IsNullOrEmpty(uid))
+            throw new InvalidOperationException("No hay sesión activa. Inicia sesión para continuar.");
+        return uid;
+    }
+
+    // ── Queries ──────────────────────────────────────────────────────────────
 
     public async Task<List<RecipeDto>> GetAllRecipesAsync()
     {
-        try 
+        try
         {
+            var uid = RequireUserId();
             var client = await _supabaseService.GetClientAsync();
             var response = await client.From<Recipe>()
+                .Filter("user_id", Postgrest.Constants.Operator.Equals, uid)
                 .Order("created_at", Postgrest.Constants.Ordering.Descending)
                 .Get();
 
-            var dtos = new List<RecipeDto>();
-            foreach (var model in response.Models)
-            {
-                dtos.Add(MapToDto(model));
-            }
-            return dtos;
+            return response.Models.Select(MapToDto).ToList();
+        }
+        catch (InvalidOperationException)
+        {
+            return new List<RecipeDto>();
         }
         catch (Exception ex)
         {
@@ -42,8 +57,10 @@ public class RecipeService
 
     public async Task<List<RecipeDto>> GetFavoritesAsync()
     {
+        var uid = RequireUserId();
         var client = await _supabaseService.GetClientAsync();
         var response = await client.From<Recipe>()
+            .Filter("user_id", Postgrest.Constants.Operator.Equals, uid)
             .Filter("is_favorite", Postgrest.Constants.Operator.Equals, "true")
             .Order("name", Postgrest.Constants.Ordering.Ascending)
             .Get();
@@ -53,8 +70,10 @@ public class RecipeService
 
     public async Task<List<RecipeDto>> SearchRecipesAsync(string query)
     {
+        var uid = RequireUserId();
         var client = await _supabaseService.GetClientAsync();
         var response = await client.From<Recipe>()
+            .Filter("user_id", Postgrest.Constants.Operator.Equals, uid)
             .Filter("name", Postgrest.Constants.Operator.ILike, $"%{query}%")
             .Get();
 
@@ -63,19 +82,25 @@ public class RecipeService
 
     public async Task<RecipeDto?> GetRecipeByIdAsync(Guid id)
     {
+        var uid = RequireUserId();
         var client = await _supabaseService.GetClientAsync();
         var response = await client.From<Recipe>()
             .Filter("id", Postgrest.Constants.Operator.Equals, id.ToString())
+            .Filter("user_id", Postgrest.Constants.Operator.Equals, uid)
             .Single();
 
         return response is null ? null : MapToDto(response);
     }
 
+    // ── Mutaciones ───────────────────────────────────────────────────────────
+
     public async Task<RecipeDto?> CreateRecipeAsync(RecipeDto dto)
     {
+        var uid = RequireUserId();
         var client = await _supabaseService.GetClientAsync();
         var model = MapToModel(dto);
         model.Id = Guid.NewGuid();
+        model.UserId = uid;                         // ← asignar dueño
         model.CreatedAt = DateTime.UtcNow;
         model.UpdatedAt = DateTime.UtcNow;
 
@@ -85,16 +110,27 @@ public class RecipeService
 
     public async Task<RecipeDto?> UpdateRecipeAsync(RecipeDto dto)
     {
-        var client = await _supabaseService.GetClientAsync();
-        var model = MapToModel(dto);
-        model.UpdatedAt = DateTime.UtcNow;
+        try
+        {
+            var uid = RequireUserId();
+            var client = await _supabaseService.GetClientAsync();
+            var model = MapToModel(dto);
+            model.UserId = uid; // IMPORTANTE: Sin esto, RLS bloquea el update o la DB da error de Nulo
+            model.UpdatedAt = DateTime.UtcNow;
 
-        var response = await client.From<Recipe>().Upsert(model);
-        return response.Models.FirstOrDefault() is { } updated ? MapToDto(updated) : null;
+            var response = await client.From<Recipe>().Upsert(model);
+            return response.Models.FirstOrDefault() is { } updated ? MapToDto(updated) : null;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error en UpdateRecipeAsync: {ex.Message}");
+            throw;
+        }
     }
 
     public async Task ToggleFavoriteAsync(Guid id, bool isFavorite)
     {
+        RequireUserId();
         var client = await _supabaseService.GetClientAsync();
         await client.From<Recipe>()
             .Filter("id", Postgrest.Constants.Operator.Equals, id.ToString())
@@ -104,9 +140,11 @@ public class RecipeService
 
     public async Task DeleteRecipeAsync(Guid id)
     {
+        var uid = RequireUserId();
         var client = await _supabaseService.GetClientAsync();
         await client.From<Recipe>()
             .Filter("id", Postgrest.Constants.Operator.Equals, id.ToString())
+            .Filter("user_id", Postgrest.Constants.Operator.Equals, uid)
             .Delete();
     }
 
@@ -134,6 +172,8 @@ public class RecipeService
             return null;
         }
     }
+
+    // ── Mappers ──────────────────────────────────────────────────────────────
 
     private static List<T> ParseMixedJsonbArray<T>(object? rawValue)
     {

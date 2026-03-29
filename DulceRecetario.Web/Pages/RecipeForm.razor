@@ -1,5 +1,6 @@
 @page "/add"
 @page "/edit/{Id:guid}"
+@attribute [Authorize]
 @inject RecipeService RecipeService
 @inject NavigationManager Navigation
 
@@ -135,12 +136,20 @@
     </div>
 
     <!-- Footer Actions -->
-    <div class="action-bar-footer sticky-bottom py-4 px-3 d-flex gap-3">
-        <button class="btn btn-secondary-premium flex-grow-1 py-3" @onclick="GoBack">Cancelar</button>
-        <button class="btn btn-premium flex-grow-2 py-3 shadow-lg" @onclick="SaveRecipe" disabled="@isBusy">
-            @if (isBusy) { <span class="spinner-border spinner-border-sm me-2"></span> }
-            @(IsEditMode ? "Actualizar Receta ✨" : "Guardar en mi Cielo 🍓")
-        </button>
+    <div class="action-bar-footer sticky-bottom py-4 px-3">
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="error-pill mb-3 animate__animated animate__shakeX">
+                ⚠️ @errorMessage
+            </div>
+        }
+        <div class="d-flex gap-3">
+            <button class="btn btn-secondary-premium flex-grow-1 py-3" @onclick="GoBack">Cancelar</button>
+            <button class="btn btn-premium flex-grow-2 py-3 shadow-lg" @onclick="SaveRecipe" disabled="@isBusy">
+                @if (isBusy) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                @(IsEditMode ? "Actualizar Receta ✨" : "Guardar en mi Cielo 🍓")
+            </button>
+        </div>
     </div>
 </div>
 
@@ -176,6 +185,18 @@
     .action-bar-footer { background: linear-gradient(180deg, transparent 0%, rgba(255, 251, 251, 0.95) 30%); backdrop-filter: blur(5px); }
     .flex-grow-2 { flex-grow: 2; }
 
+    .error-pill {
+        background: #fff0f3;
+        border: 1.5px solid var(--primary-lighter);
+        color: var(--accent);
+        border-radius: 16px;
+        padding: 12px 18px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        text-align: center;
+    }
+
     @@media (max-width: 768px) {
         .ing-modern-row { grid-template-columns: 1fr; }
         .ing-qty-group { grid-template-columns: 1fr 1fr; }
@@ -190,6 +211,7 @@
     private bool isBusy = false;
     private string? previewUrl;
     private IBrowserFile? selectedFile;
+    private string? errorMessage;
 
     private readonly List<string> Categories = new() { "Tortas", "Bizcochos", "Galletas", "Helados", "Tartas", "Otros" };
     private readonly List<string> Units = new() { "Gr.", "Kg.", "Ml.", "Lts.", "Und.", "Tazas", "Cuch.", "Cuchta.", "Pizca" };
@@ -233,9 +255,17 @@
 
     private async Task SaveRecipe()
     {
+        errorMessage = null;
         isBusy = true;
         try
         {
+            if (string.IsNullOrWhiteSpace(recipe.Name))
+            {
+                errorMessage = "La receta necesita un nombre.";
+                isBusy = false;
+                return;
+            }
+
             if (selectedFile != null)
             {
                 var url = await RecipeService.UploadImageAsync(selectedFile.OpenReadStream(), $"web_{Guid.NewGuid()}.jpg");
@@ -249,7 +279,7 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            errorMessage = $"Error al guardar: {ex.Message}";
         }
         finally { isBusy = false; }
     }

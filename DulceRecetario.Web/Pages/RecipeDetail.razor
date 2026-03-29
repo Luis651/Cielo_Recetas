@@ -1,6 +1,8 @@
 @page "/recipe/{Id:guid}"
+@attribute [Authorize]
 @inject RecipeService RecipeService
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 @if (recipe == null)
 {
@@ -12,94 +14,104 @@
 else
 {
     <div class="recipe-detail-container animate__animated animate__fadeIn">
-        <!-- Hero Section -->
-        <div class="detail-hero" style="background-image: url('@(string.IsNullOrEmpty(recipe.ImageUrl) ? "icon-512.png" : recipe.ImageUrl)')">
-            <div class="detail-overlay d-flex flex-column justify-content-between">
-                <button class="btn-circular-back" @onclick="GoBack">←</button>
-                <div class="hero-info text-white">
-                    <span class="recipe-category-pill">@recipe.Category</span>
-                    <h1 class="display-4 fw-bold mt-2">@recipe.Name</h1>
-                </div>
+        <!-- Hero Section: Clean & Focused -->
+        <div class="detail-hero shadow-lg" style="background-image: url('@(string.IsNullOrEmpty(recipe.ImageUrl) ? "icon-512.png" : recipe.ImageUrl)')">
+            <div class="detail-overlay">
+                <button class="btn-circular-back shadow" @onclick="GoBack" type="button">←</button>
             </div>
         </div>
 
         <div class="card-overlap">
-            <div class="row">
-                <!-- Left: Info & Scaling -->
-                <div class="col-lg-8">
-                    <div class="stats-grid mb-5">
-                        <div class="stat-card">
-                            <span class="stat-icon">✨</span>
-                            <span class="stat-label">Dificultad</span>
-                            <span class="stat-value">@recipe.Difficulty</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-icon">⏱</span>
-                            <span class="stat-label">Tiempo</span>
-                            <span class="stat-value">@recipe.PrepTimeMinutes min</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-icon">🍽</span>
-                            <span class="stat-label">Porciones</span>
-                            <span class="stat-value">@recipe.Servings</span>
-                        </div>
-                    </div>
+            <!-- Header Section: Title & Description -->
+            <div class="recipe-header mb-5">
+                <span class="badge-custom">@(recipe.Category ?? "Otros")</span>
+                <h1 class="display-3 fw-bold mt-2 mb-3" style="color: var(--bordeaux);">@recipe.Name</h1>
+                @if (!string.IsNullOrEmpty(recipe.Description))
+                {
+                    <p class="description-text">@recipe.Description</p>
+                }
+            </div>
 
-                    <p class="description-text mb-5">@recipe.Description</p>
 
-                    <h3 class="section-title mb-4">Preparación</h3>
+            <div class="row g-5">
+                <!-- Left: Instructions -->
+                <div class="col-lg-7">
+                    <h3 class="section-title-premium mb-4"><span>Preparación</span></h3>
                     <div class="steps-timeline">
-                        @foreach (var step in recipe.Steps.OrderBy(s => s.Order))
+                        @if (recipe.Steps != null && recipe.Steps.Any())
                         {
-                            <div class="step-card mb-4">
-                                <div class="step-header">
-                                    <span class="step-num">Paso @step.Order</span>
+                            @foreach (var step in recipe.Steps.OrderBy(s => s.Order))
+                            {
+                                <div class="step-card mb-4 animate__animated animate__fadeInUp">
+                                    <div class="step-header">
+                                        <span class="step-num">Paso @step.Order</span>
+                                    </div>
+                                    <div class="step-body">
+                                        @step.Description
+                                    </div>
                                 </div>
-                                <div class="step-body">
-                                    @step.Description
-                                </div>
-                            </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted italic">No hay pasos registrados para esta receta.</p>
                         }
                     </div>
                 </div>
 
                 <!-- Right: Ingredients & Tools -->
-                <div class="col-lg-4">
+                <div class="col-lg-5">
                     <div class="sticky-sidebar">
-                        <div class="scaling-widget mb-4 glass-card p-4">
-                            <h5 class="fw-bold mb-3">Calculadora Pro 📏</h5>
-                            <div class="mb-3">
-                                <label class="small text-muted mb-1">Diámetro actual: @recipe.BaseMoldSize cm</label>
+                        <div class="ingredients-card p-5 glass-card mb-4 shadow-sm">
+                            <h4 class="fw-bold mb-4" style="color: var(--bordeaux);">Ingredientes ✨</h4>
+                            
+                            <div class="scaling-tool mb-4 p-3 rounded-4" style="background: var(--primary-lighter);">
+                                <label class="small fw-bold mb-2 d-block text-accent">AJUSTAR POR MOLDE: @(recipe.BaseMoldSize) cm</label>
                                 <div class="input-group">
-                                    <span class="input-group-text">Nuevo:</span>
-                                    <input type="number" class="form-control" @bind="targetMoldSize" @bind:event="oninput" @onkeyup="UpdateScaling" />
-                                    <span class="input-group-text">cm</span>
+                                    <input type="number" class="form-control premium-pill-input w-50" 
+                                           @bind="targetMoldSize" @bind:event="oninput" @onkeyup="UpdateScaling" />
+                                    <span class="input-group-text bg-transparent border-0 fw-bold">cm</span>
                                 </div>
+                                <div class="mt-2 small text-muted">Ajuste actual: <strong>x@(scalingFactor.ToString("0.##"))</strong></div>
                             </div>
-                            <div class="scaling-factor-indicator">
-                                Ajuste: <strong>x@scalingFactor.ToString("0.##")</strong>
-                            </div>
-                        </div>
 
-                        <div class="ingredients-card p-4 rounded-4 shadow-sm border-0">
-                            <h4 class="fw-bold mb-4">Ingredientes</h4>
                             <ul class="ing-list">
-                                @foreach (var ing in recipe.Ingredients)
+                                @if (recipe.Ingredients != null && recipe.Ingredients.Any())
                                 {
-                                    <li>
-                                        <span class="ing-dot"></span>
-                                        <div class="d-flex justify-content-between w-100">
-                                            <span class="ing-name">@ing.Name</span>
-                                            <span class="ing-amount">@((ing.Quantity * scalingFactor).ToString("0.##")) @ing.Unit</span>
-                                        </div>
-                                    </li>
+                                    @foreach (var ing in recipe.Ingredients)
+                                    {
+                                        <li class="py-3 d-flex align-items-center">
+                                            <span class="ing-dot me-3"></span>
+                                            <div class="d-flex justify-content-between w-100">
+                                                <span class="ing-name">@ing.Name</span>
+                                                <span class="ing-amount">@((ing.Quantity * scalingFactor).ToString("0.##")) @ing.Unit</span>
+                                            </div>
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li class="text-muted">No hay ingredientes registrados.</li>
                                 }
                             </ul>
                         </div>
 
-                        <div class="mt-5 d-flex justify-content-center gap-3">
-                            <button class="btn btn-danger-premium px-4" @onclick="DeleteRecipe">Eliminar 🗑</button>
-                            <button class="btn btn-premium px-5" @onclick="EditRecipe">Editar Receta ✍️</button>
+                        <div class="d-flex justify-content-center gap-3">
+                            @if (!isDeleting)
+                            {
+                                <button class="btn btn-danger-premium" @onclick="() => isDeleting = true" type="button">Eliminar 🗑</button>
+                                <button class="btn btn-premium flex-grow-1" @onclick="EditRecipe" type="button">Editar Receta ✍️</button>
+                            }
+                            else
+                            {
+                                <div class="confirmation-box animate__animated animate__pulse animate__infinite">
+                                    <p class="text-danger small fw-bold mb-2">¿Confirmas el borrado? 🍓</p>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-secondary-premium flex-grow-1" @onclick="() => isDeleting = false">Atrás</button>
+                                        <button class="btn btn-danger-premium flex-grow-2" @onclick="DeleteRecipe">BORRAR</button>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -109,36 +121,43 @@ else
 }
 
 <style>
-    .btn-circular-back {
-        width: 45px; height: 45px; border-radius: 50%; border: none;
-        background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
-        color: white; font-size: 1.2rem; transition: all 0.3s;
-    }
-    .btn-circular-back:hover { background: white; color: var(--primary); transform: translateX(-5px); }
-    .recipe-category-pill {
-        background: var(--primary); color: white; padding: 4px 14px; border-radius: 20px;
-        font-size: 0.8rem; font-weight: bold; text-transform: uppercase;
-    }
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-    .stat-card {
-        background: white; border-radius: 20px; padding: 15px; text-align: center;
-        border: 1px solid var(--primary-lighter); box-shadow: var(--shadow-sm);
-    }
-    .stat-icon { font-size: 1.5rem; display: block; margin-bottom: 5px; }
-    .stat-label { font-size: 0.7rem; color: var(--text-muted); display: block; text-transform: uppercase; }
-    .stat-value { font-weight: 800; color: var(--bordeaux); font-size: 1rem; }
     .description-text { font-size: 1.1rem; line-height: 1.7; color: var(--text-muted); }
-    .section-title { font-weight: 800; color: var(--bordeaux); }
+    
     .step-card { background: white; border-radius: 24px; padding: 25px; border-left: 5px solid var(--primary); box-shadow: var(--shadow-sm); }
     .step-num { font-weight: 800; color: var(--primary); font-size: 0.8rem; text-transform: uppercase; }
     .step-body { margin-top: 10px; font-size: 1.05rem; line-height: 1.6; }
+    
     .ing-list { list-style: none; padding: 0; }
-    .ing-list li { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8f8f8; }
-    .ing-dot { width: 8px; height: 8px; background: var(--primary-light); border-radius: 50%; margin-right: 15px; flex-shrink: 0; }
-    .ing-name { font-weight: 500; }
+    .ing-list li { border-bottom: 1px solid rgba(255, 77, 109, 0.05); }
+    .ing-dot { width: 8px; height: 8px; background: var(--primary-light); border-radius: 50%; flex-shrink: 0; }
+    .ing-name { font-weight: 500; font-size: 1.05rem; }
     .ing-amount { font-weight: 800; color: var(--accent); }
+    
     .sticky-sidebar { position: sticky; top: 100px; }
-    .scaling-factor-indicator { background: var(--grad-primary); color: white; text-align: center; padding: 8px; border-radius: 12px; font-size: 0.9rem; }
+    
+    .scaling-tool .input-group {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        border: 2px solid white;
+    }
+    .scaling-tool .form-control {
+        border: none;
+        box-shadow: none;
+        text-align: center;
+        font-weight: 800;
+        color: var(--accent);
+    }
+
+    .confirmation-box {
+        background: #fff5f6;
+        padding: 15px;
+        border-radius: 20px;
+        border: 2px dashed var(--accent);
+        width: 100%;
+        text-align: center;
+    }
+    .flex-grow-2 { flex-grow: 2; }
 </style>
 
 @code {
@@ -147,12 +166,15 @@ else
     private double targetMoldSize;
     private double scalingFactor = 1.0;
 
+    private bool isDeleting = false;
+
     protected override async Task OnInitializedAsync()
     {
         recipe = await RecipeService.GetRecipeByIdAsync(Id);
         if (recipe != null)
         {
             targetMoldSize = recipe.BaseMoldSize;
+            UpdateScaling();
         }
     }
 
