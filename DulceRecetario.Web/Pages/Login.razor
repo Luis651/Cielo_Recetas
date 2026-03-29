@@ -189,7 +189,7 @@
     {
         // Si ya hay sesión, ir al home directamente
         if (AuthService.IsAuthenticated)
-            Navigation.NavigateTo("/", replace: true);
+            Navigation.NavigateTo("", replace: true);
     }
 
     private void SetMode(bool register)
@@ -224,7 +224,7 @@
             if (success)
             {
                 if (AuthService.IsAuthenticated)
-                    Navigation.NavigateTo("/", replace: true);
+                    Navigation.NavigateTo("", replace: true);
                 else
                     successMessage = "¡Cuenta creada! Revisa tu correo para confirmar tu cuenta y luego inicia sesión.";
             }
@@ -238,7 +238,7 @@
             var (success, error) = await AuthService.SignInAsync(email.Trim(), password);
             isLoading = false;
             if (success)
-                Navigation.NavigateTo("/", replace: true);
+                Navigation.NavigateTo("", replace: true);
             else
                 errorMessage = error;
         }

@@ -275,7 +275,7 @@
             if (IsEditMode) await RecipeService.UpdateRecipeAsync(recipe);
             else await RecipeService.CreateRecipeAsync(recipe);
 
-            Navigation.NavigateTo("/");
+            Navigation.NavigateTo("");
         }
         catch (Exception ex)
         {
@@ -284,5 +284,5 @@
         finally { isBusy = false; }
     }
 
-    private void GoBack() => Navigation.NavigateTo("/");
+    private void GoBack() => Navigation.NavigateTo("");
 }

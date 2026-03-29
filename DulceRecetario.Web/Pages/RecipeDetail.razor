@@ -190,12 +190,12 @@ else
         }
     }
 
-    private void GoBack() => Navigation.NavigateTo("/");
-    private void EditRecipe() => Navigation.NavigateTo($"/edit/{recipe?.Id}");
+    private void GoBack() => Navigation.NavigateTo("");
+    private void EditRecipe() => Navigation.NavigateTo($"edit/{recipe?.Id}");
     private async Task DeleteRecipe()
     {
         if (recipe == null) return;
         await RecipeService.DeleteRecipeAsync(recipe.Id);
-        Navigation.NavigateTo("/");
+        Navigation.NavigateTo("");
     }
 }

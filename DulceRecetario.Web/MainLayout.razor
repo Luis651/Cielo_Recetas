@@ -6,7 +6,7 @@
 
 <div class="page-container">
     <div class="top-bar py-3 px-4 d-flex justify-content-between align-items-center">
-        <h1 class="brand-title m-0" style="cursor: pointer;" @onclick='() => Navigation.NavigateTo("/")'>Cielo Recetas 🍓</h1>
+        <h1 class="brand-title m-0" style="cursor: pointer;" @onclick='() => Navigation.NavigateTo("")'>Cielo Recetas 🍓</h1>
 
         <AuthorizeView>
             <Authorized>
@@ -80,6 +80,6 @@
     private async Task HandleLogout()
     {
         await AuthService.SignOutAsync();
-        Navigation.NavigateTo("/login", replace: true);
+        Navigation.NavigateTo("login", replace: true);
     }
 }
