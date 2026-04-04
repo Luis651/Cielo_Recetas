@@ -90,9 +90,9 @@ public class RecipeDetailViewModel : BaseViewModel
         }
         else
         {
-            // Factor = (R_new^2) / (R_original^2)
-            // Equivalent to (D_new^2) / (D_original^2)
-            ScalingFactor = Math.Pow(TargetMoldSize, 2) / Math.Pow(Recipe.BaseMoldSize, 2);
+            // Factor = (D_new) / (D_original)
+            // Relación lineal directa entre diámetros (según requerimiento)
+            ScalingFactor = TargetMoldSize / Recipe.BaseMoldSize;
         }
 
         ScaledIngredients.Clear();

@@ -182,7 +182,7 @@ else
     {
         if (recipe != null && recipe.BaseMoldSize > 0 && targetMoldSize > 0)
         {
-            scalingFactor = Math.Pow(targetMoldSize, 2) / Math.Pow(recipe.BaseMoldSize, 2);
+            scalingFactor = targetMoldSize / recipe.BaseMoldSize;
         }
         else
         {
